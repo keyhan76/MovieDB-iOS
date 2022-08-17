@@ -23,9 +23,6 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     
     var type: CoordinatorType { .movies }
     
-    private var moviesVC: MoviesViewController!
-    private var favoritesVC: FavoriteMoviesViewController!
-    
     required init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
@@ -39,14 +36,14 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     }
     
     func showMoviesViewController(animated: Bool = true) {
-        moviesVC = .init()
+        let moviesVC = MoviesViewController()
         
         moviesVC.didSendEventClosure = { [weak self] event in
             guard let self = self else { return }
             
             switch event {
             case .movieDetail(let selectedMovie):
-                self.showMovieDetailViewController(with: selectedMovie)
+                self.showMovieDetailViewController(viewController: moviesVC, with: selectedMovie)
             case .favorites:
                 self.showFavoriteMoviesViewController()
             }
@@ -55,18 +52,17 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
         navigationController.pushViewController(moviesVC, animated: animated)
     }
     
-    func showMovieDetailViewController(with movie: MoviesModel, animated: Bool = true) {
+    func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
         let movieDetailVC = MovieDetailViewController(selectedMovie: movie)
         
         // Set delegate
-        movieDetailVC.delegate = moviesVC
-        movieDetailVC.delegate = favoritesVC
+        movieDetailVC.delegate = viewController
         
         navigationController.pushViewController(movieDetailVC, animated: animated)
     }
     
     func showFavoriteMoviesViewController(animated: Bool = true) {
-        favoritesVC = FavoriteMoviesViewController()
+        let favoritesVC = FavoriteMoviesViewController()
         
         navigationController.pushViewController(favoritesVC, animated: animated)
     }
