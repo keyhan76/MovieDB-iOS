@@ -11,7 +11,7 @@ protocol MoviesCoordinatorProtocol: Coordinator {
     func showMoviesViewController(animated: Bool)
 }
 
-class MoviesCoordinator: MoviesCoordinatorProtocol {
+final class MoviesCoordinator: MoviesCoordinatorProtocol {
     
     var navigationController: UINavigationController
     
@@ -32,13 +32,38 @@ class MoviesCoordinator: MoviesCoordinatorProtocol {
     }
     
     deinit {
-        print("PlacesCoordinator deinit")
+        print("Removed \(self) coordinator from memory")
     }
     
     func showMoviesViewController(animated: Bool = true) {
-        let moviesVC: MoviesViewController = .init()
+        let moviesVC = MoviesViewController()
+        
+        moviesVC.didSendEventClosure = { [weak self] event in
+            guard let self = self else { return }
+            
+            switch event {
+            case .movieDetail(let selectedMovie):
+                self.showMovieDetailViewController(viewController: moviesVC, with: selectedMovie)
+            case .favorites:
+                self.showFavoriteMoviesViewController()
+            }
+        }
         
         navigationController.pushViewController(moviesVC, animated: animated)
     }
+    
+    func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
+        let movieDetailVC = MovieDetailViewController(selectedMovie: movie)
+        
+        // Set delegate
+        movieDetailVC.delegate = viewController
+        
+        navigationController.pushViewController(movieDetailVC, animated: animated)
+    }
+    
+    func showFavoriteMoviesViewController(animated: Bool = true) {
+        let favoritesVC = FavoriteMoviesViewController()
+        
+        navigationController.pushViewController(favoritesVC, animated: animated)
+    }
 }
-import Foundation
