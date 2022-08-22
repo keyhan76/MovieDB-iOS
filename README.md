@@ -13,6 +13,7 @@
 - MVVM Architecture 
 - Coordinator pattern
 - Generic network layer using PrmiseKit
+- Generic TableView dataSource
 - Well structred project
 - Fully testable service layer and ViewModels
 - Featuring both Unit tests & UI tests
