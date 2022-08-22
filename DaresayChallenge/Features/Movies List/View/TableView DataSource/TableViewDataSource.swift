@@ -7,19 +7,24 @@
 
 import UIKit
 
-final class TableViewDataSourceProvider: NSObject {
+protocol TableViewCell: UITableViewCell {
+    func configureCell(with item: ListViewModelable, indexPath: Int)
+}
+
+
+final class TableViewDataSourceProvider<T: ListViewModelable, Cell: TableViewCell>: NSObject, UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
     
     // MARK: - Variables
     private var tableView: UITableView
-    private var viewModel: ListViewModelable
+    private var viewModel: T
     
-    public var didSelectItem: ((_ item: MoviesModel) -> Void)?
+    public var didSelectItem: ((_ indexPath: Int) -> Void)?
     
     // Reuse identifier
-    private let movieCellID = String(describing: MovieTableViewCell.self)
+    private let cellID = String(describing: Cell.self)
     
     // MARK: - Init
-    init(tableView: UITableView, viewModel: ListViewModelable) {
+    init(tableView: UITableView, viewModel: T) {
         self.tableView = tableView
         self.viewModel = viewModel
         super.init()
@@ -28,12 +33,7 @@ final class TableViewDataSourceProvider: NSObject {
     }
     
     // MARK: - Public methods
-    public func append(_ newItems: [MoviesModel]) {
-        guard !newItems.isEmpty else {
-            print("WARNING: YOU ARE ADDING EMPTY LIST TO TABLE VIEW")
-            return
-        }
-        
+    public func append() {
         guard viewModel.totalCount != viewModel.itemsCount else { return }
         
         if viewModel.totalCount == 0 {
@@ -55,20 +55,15 @@ final class TableViewDataSourceProvider: NSObject {
     public func refresh() {
         tableView.reloadData()
     }
-}
-
-// MARK: - UITableView Delegate
-extension TableViewDataSourceProvider: UITableViewDelegate {
+    
+    // MARK: - UITableView Delegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = viewModel.item(at: indexPath.row)
-        didSelectItem?(item)
-        
+        didSelectItem?(indexPath.row)
+
         tableView.deselectRow(at: indexPath, animated: true)
     }
-}
-
-// MARK: - UITableView DataSource
-extension TableViewDataSourceProvider: UITableViewDataSource {
+    
+    // MARK: - UITableView DataSource
     func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
@@ -78,29 +73,14 @@ extension TableViewDataSourceProvider: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = generateCell(MovieTableViewCell.self, indexPath: indexPath)
-        
-        let item = viewModel.item(at: indexPath.row)
-        
-        let favoriteMovies = UserDefaultsData.favoriteList
-        
-        var isFavorite = false
-        for movie in favoriteMovies {
-            if movie.movieID == item.movieID {
-                isFavorite = true
-                item.isFavorite = true 
-                break
-            }
-        }
-        
-        cell.configureCell(with: item, isFavorite: isFavorite)
-        
+        let cell = generateCell(Cell.self, indexPath: indexPath)
+
+        cell.configureCell(with: viewModel, indexPath: indexPath.row)
+
         return cell
     }
-}
-
-// MARK: - UITableView DataSource Prefetching
-extension TableViewDataSourceProvider: UITableViewDataSourcePrefetching {
+    
+    // MARK: - UITableView DataSource Prefetching
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         if indexPaths.contains(where: viewModel.isLoadingCell) && !viewModel.isFinished {
             print("==========get new data======")
@@ -121,7 +101,7 @@ private extension TableViewDataSourceProvider {
     }
     
     func setupTableView() {
-        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: movieCellID)
+        tableView.register(Cell.self, forCellReuseIdentifier: cellID)
         tableView.tableFooterView = UIView(frame: .zero)
         tableView.estimatedRowHeight = 60
         tableView.rowHeight = UITableView.automaticDimension

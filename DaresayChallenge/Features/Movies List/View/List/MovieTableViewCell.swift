@@ -80,9 +80,11 @@ private extension MovieTableViewCell {
         
         favoriteImageView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -8).isActive = true
         favoriteImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8).isActive = true
+        favoriteImageView.widthAnchor.constraint(equalToConstant: 22).isActive = true
+        favoriteImageView.heightAnchor.constraint(equalToConstant: 22).isActive = true
         
         stackView.leftAnchor.constraint(equalTo: movieImageView.rightAnchor, constant: 8).isActive = true
-        stackView.rightAnchor.constraint(equalTo: favoriteImageView.rightAnchor, constant: -12).isActive = true
+        stackView.rightAnchor.constraint(equalTo: favoriteImageView.leftAnchor, constant: -12).isActive = true
         stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8).isActive = true
         stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8).isActive = true
         
@@ -94,16 +96,17 @@ private extension MovieTableViewCell {
 }
 
 // MARK: - Configuration
-extension MovieTableViewCell {
-    public func configureCell(with movieModel: MoviesModel, isFavorite: Bool) {
-        titleLabel.text = movieModel.title
-        descriptionLabel.text = movieModel.overview
+extension MovieTableViewCell: TableViewCell {
+    func configureCell(with item: ListViewModelable, indexPath: Int) {
+        guard let viewModel = item as? MoviesViewModel else { return }
         
-        if let imageURL = movieModel.posterURL {
-            movieImageView.load(url: imageURL, placeholder: placeHolderImage)
-        }
+        titleLabel.text = viewModel.title(forItemAt: indexPath)
+        descriptionLabel.text = viewModel.description(forItemAt: indexPath)
         
-        if isFavorite {
+        let imageURL = viewModel.imageURL(forItemAt: indexPath)
+        movieImageView.load(url: imageURL, placeholder: placeHolderImage)
+        
+        if viewModel.isFavorite(forItemAt: indexPath) {
             favoriteImageView.image = UIImage(systemName: "heart.fill")
         } else {
             favoriteImageView.image = UIImage(systemName: "heart")

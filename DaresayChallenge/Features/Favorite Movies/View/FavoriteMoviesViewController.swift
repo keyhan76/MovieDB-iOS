@@ -11,7 +11,7 @@ final class FavoriteMoviesViewController: UIViewController {
 
     // MARK: - Variables
     private let viewModel: FavoriteMoviesViewModel = FavoriteMoviesViewModel()
-    private var dataSourceProvider: TableViewDataSourceProvider!
+    private var dataSourceProvider: TableViewDataSourceProvider<FavoriteMoviesViewModel, MovieTableViewCell>!
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -46,7 +46,7 @@ private extension FavoriteMoviesViewController {
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         
-        dataSourceProvider.append(viewModel.favoriteMovies)
+        dataSourceProvider.append()
     }
 }
 
