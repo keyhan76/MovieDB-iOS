@@ -12,7 +12,6 @@ protocol ListViewModelable {
     var itemsCount: Int { get }
     var isFinished: Bool { get set }
     
-    func item(at index: Int) -> MoviesModel
     func isLoadingCell(for indexPath: IndexPath) -> Bool
     func prefetchData()
 }
@@ -22,7 +21,7 @@ protocol MoviesViewModelDelegate: AnyObject {
     func displayMovies(displayState: DisplayState<[MoviesModel]>)
 }
 
-final class MoviesViewModel {
+class MoviesViewModel {
     
     // MARK: - Variables
     private var moviesService: MoviesServiceProtocol
@@ -104,6 +103,35 @@ final class MoviesViewModel {
         }
     }
     
+    public func title(forItemAt indexPath: Int) -> String? {
+        let movie = self.item(at: indexPath)
+        return movie.title
+    }
+    
+    public func description(forItemAt indexPath: Int) -> String? {
+        let movie = self.item(at: indexPath)
+        let description = movie.overview
+        return description
+    }
+    
+    public func didSelect(itemAt indexPath: Int) -> MoviesModel {
+        let movie = self.item(at: indexPath)
+        return movie
+    }
+    
+    public func imageURL(forItemAt indexPath: Int) -> URL? {
+        let movie = self.item(at: indexPath)
+        let imageURL = movie.posterURL
+        return imageURL
+    }
+    
+    public func isFavorite(forItemAt indexPath: Int) -> Bool {
+        let favoriteMovies = UserDefaultsData.favoriteList
+        let movie = self.item(at: indexPath)
+        
+        return favoriteMovies.contains(where: { $0.movieID == movie.movieID})
+    }
+    
     // MARK: - Helpers
     private func getConfigs(dispatchGroup: DispatchGroup? = nil) {
         
@@ -122,14 +150,14 @@ final class MoviesViewModel {
             }
         }
     }
+    
+    func item(at index: Int) -> MoviesModel {
+        allMovies[index]
+    }
 }
 
 // MARK: - ListViewModelable
 extension MoviesViewModel: ListViewModelable {
-    func item(at index: Int) -> MoviesModel {
-        return allMovies[index]
-    }
-    
     func isLoadingCell(for indexPath: IndexPath) -> Bool {
         return indexPath.row == itemsCount - 1
     }

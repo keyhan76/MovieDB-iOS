@@ -7,13 +7,11 @@
 
 import Foundation
 
-final class FavoriteMoviesViewModel {
+final class FavoriteMoviesViewModel: MoviesViewModel {
     
     // MARK: - Variables
-    var totalCount: Int = 0
-    var isFinished: Bool = false
     
-    var itemsCount: Int {
+    override var itemsCount: Int {
         favoriteMovies.count
     }
     
@@ -22,16 +20,11 @@ final class FavoriteMoviesViewModel {
     // MARK: - Init
     init(favoriteMovies: [MoviesModel] = UserDefaultsData.favoriteList) {
         self.favoriteMovies = favoriteMovies
+        super.init(moviesService: MoviesService.shared)
     }
-}
-
-// MARK: - ListViewModelable
-extension FavoriteMoviesViewModel: ListViewModelable {
-    func item(at index: Int) -> MoviesModel {
+    
+    // MARK: - Helpers
+    override func item(at index: Int) -> MoviesModel {
         favoriteMovies[index]
     }
-    
-    func isLoadingCell(for indexPath: IndexPath) -> Bool { false }
-    
-    func prefetchData() { }
 }

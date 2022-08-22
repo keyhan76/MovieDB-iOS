@@ -19,7 +19,7 @@ final class MoviesViewController: UIViewController {
         return tableView
     }()
     
-    private var dataSourceProvider: TableViewDataSourceProvider!
+    private var dataSourceProvider: TableViewDataSourceProvider<MoviesViewModel, MovieTableViewCell>!
     
     public var didSendEventClosure: ((MoviesViewController.Event) -> Void)?
     
@@ -83,8 +83,10 @@ private extension MoviesViewController {
     }
     
     func setupTableViewBindings() {
-        dataSourceProvider.didSelectItem = { [weak self] item in
+        dataSourceProvider.didSelectItem = { [weak self] indexPath in
             guard let self = self else { return }
+            
+            let item = self.viewModel.didSelect(itemAt: indexPath)
             
             self.didSendEventClosure?(.movieDetail(item))
         }
@@ -97,9 +99,9 @@ extension MoviesViewController: MoviesViewModelDelegate {
         switch displayState {
         case .loading:
             view.animateActivityIndicator()
-        case .success(let results):
+        case .success:
             setupTableView()
-            dataSourceProvider.append(results)
+            dataSourceProvider.append()
             view.removeActivityIndicator()
         case .failure:
             view.removeActivityIndicator()
@@ -108,8 +110,8 @@ extension MoviesViewController: MoviesViewModelDelegate {
     
     func displayMovies(displayState: DisplayState<[MoviesModel]>) {
         switch displayState {
-        case .success(let results):
-            dataSourceProvider.append(results)
+        case .success:
+            dataSourceProvider.append()
         default:
             break
         }
