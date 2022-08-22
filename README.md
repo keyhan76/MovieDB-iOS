@@ -19,4 +19,4 @@
 - Featuring both Unit tests & UI tests
 - Image downloader
 - Caching system
-- Supports both ligh and dark mode
+- Supports both light and dark mode
