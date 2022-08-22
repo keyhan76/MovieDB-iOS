@@ -144,7 +144,7 @@ private extension MovieDetailViewController {
         stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 16).isActive = true
         
         favoriteButton.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        favoriteButton.widthAnchor.constraint(equalToConstant: 240).isActive = true
+        favoriteButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 230).isActive = true
     }
     
     func setupContainerView() {
