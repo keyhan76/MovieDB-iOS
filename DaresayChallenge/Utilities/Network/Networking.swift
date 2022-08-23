@@ -9,30 +9,30 @@ import Foundation
 import PromiseKit
 
 protocol ServerProtocol {
-    var session: URLSession! { get set }
+    var session: URLSession! { get }
     
-    var dispatchQueue: DispatchQueue! { get set }
+    var dispatchQueue: DispatchQueue! { get }
     
-    var validResponseCodes: [Int]! { get set }
+    var validResponseCodes: [Int]! { get }
     
     func perform<T: Codable>(request: HTTPRequest) -> Promise<ServerData<T>>
 }
 
 final class MovieServer: NSObject, ServerProtocol {
     
-    var session: URLSession!
+    let session: URLSession!
     
-    var dispatchQueue: DispatchQueue!
+    let dispatchQueue: DispatchQueue!
     
-    var validResponseCodes: [Int]!
+    let validResponseCodes: [Int]!
     
     static let shared = MovieServer()
     
     private override init() {
-        super.init()
         self.validResponseCodes = [200, 201]
         self.dispatchQueue = .main
         self.session = URLSession.shared
+        super.init()
     }
     
     public init(session: URLSession, dispatchQueue: DispatchQueue, validResponseCodes: [Int]) {
