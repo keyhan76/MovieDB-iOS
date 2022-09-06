@@ -5,7 +5,7 @@
 //  Created by Keihan Kamangar on 2022-06-28.
 //
 
-import Foundation
+import UIKit
 
 protocol ListViewModelable {
     var totalCount: Int { get set }
@@ -31,6 +31,23 @@ class MoviesViewModel {
     private var currentPage: UInt = 1
     private var allMovies: [MoviesModel] = []
     private var configCache: ConfigurationModel?
+    
+    private lazy var favoriteMovies: [Movie] = {
+        var favMovies: [Movie] = []
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+            return []
+        }
+        
+        guard let coreDataAPI = sceneDelegate.coreDataAPI else { return [] }
+        
+        do {
+            favMovies = try coreDataAPI.fetchAllObjects(entity: Movie.self)
+        } catch let error {
+            print(error)
+        }
+        
+        return favMovies
+    }()
     
     var isFinished = false
     var totalCount: Int = 0
@@ -126,10 +143,13 @@ class MoviesViewModel {
     }
     
     public func isFavorite(forItemAt indexPath: Int) -> Bool {
-        let favoriteMovies = UserDefaultsData.favoriteList
         let movie = self.item(at: indexPath)
         
-        return favoriteMovies.contains(where: { $0.movieID == movie.movieID})
+        if movie.isFavorite {
+            return true
+        }
+        
+        return favoriteMovies.contains(where: { $0.id == movie.movieID ?? 0 })
     }
     
     // MARK: - Helpers

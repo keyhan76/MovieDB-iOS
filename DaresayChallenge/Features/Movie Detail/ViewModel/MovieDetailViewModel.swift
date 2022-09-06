@@ -22,6 +22,9 @@ final class MovieDetailViewModel {
     
     // MARK: - Public methods
     func addToFavorites(isFavorite: Bool) {
+        
+        selectedMovie.isFavorite = isFavorite
+        
         let movie = coreDataAPI.createManagedObject(entity: Movie.self)  as! Movie
         
         movie.id = Int64(selectedMovie.movieID ?? 0)

@@ -38,8 +38,14 @@ final class CoreDataAPI {
         coreDataStore.saveContext(managedContext)
     }
     
-    public func fetchObject<T: NSManagedObject>(movieID: Int, entity: T.Type) throws -> [T] {
+    public func fetchAllObjects<T: NSManagedObject>(entity: T.Type) throws -> [T] {
+        let fetchRequest = T.fetchRequest()
         
+        let objects = try managedContext.fetch(fetchRequest) as! [T]
+        return objects
+    }
+    
+    public func fetchObject<T: NSManagedObject>(movieID: Int, entity: T.Type) throws -> [T] {
         let fetchRequest = T.fetchRequest()
 
         fetchRequest.predicate = NSPredicate(format: "id == %i", movieID)
