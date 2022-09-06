@@ -69,9 +69,9 @@ final class MovieDetailViewController: UIViewController {
     
     private var isFavorite: Bool! {
         didSet {
-//            selectedMovie.isFavorite = isFavorite
-//            favoriteButton.configuration?.image = isFavorite ? favoriteImage : unfavoriteImage
-//            favoriteButton.configuration?.title = isFavorite ? removeFavoriteTitle : favoriteTile
+            viewModel.selectedMovie.isFavorite = isFavorite
+            favoriteButton.configuration?.image = isFavorite ? favoriteImage : unfavoriteImage
+            favoriteButton.configuration?.title = isFavorite ? removeFavoriteTitle : favoriteTile
         }
     }
     
@@ -111,9 +111,9 @@ final class MovieDetailViewController: UIViewController {
     
     // MARK: - Actions
     private func favoriteButtonTapped() {
-//        isFavorite = !isFavorite
-//        isFavorite ? FavoriteMoviesHandler.shared.addToFavorites(selectedMovie) : FavoriteMoviesHandler.shared.removeFromFavorites(selectedMovie)
-//        delegate?.refresh()
+        isFavorite = !isFavorite
+        viewModel.addToFavorites(isFavorite: isFavorite)
+        delegate?.refresh()
     }
 }
 
@@ -169,7 +169,6 @@ private extension MovieDetailViewController {
     func populate() {
         titleLabel.text = viewModel.selectedMovie.originalTitle
         descriptionLabel.text = viewModel.selectedMovie.overview
-        isFavorite = viewModel.selectedMovie.isFavorite
         
         if let rating = viewModel.selectedMovie.voteAverage {
             ratingLabel.text = "Rating: \(String(describing: rating * 10))%"
@@ -178,6 +177,8 @@ private extension MovieDetailViewController {
         if let imageURL = viewModel.selectedMovie.backgroundImageURL {
             backgroundImageView.load(url: imageURL, placeholder: placeHolderImage)
         }
+        
+        isFavorite = viewModel.isAvailableInFavorites()
     }
     
     func setupButtonAction() {

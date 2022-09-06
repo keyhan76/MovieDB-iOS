@@ -49,29 +49,13 @@ open class CoreDataStore {
     }
     
     public func saveContext(_ context: NSManagedObjectContext) {
-        if context != mainContext {
-            saveDerivedContext(context)
-            return
-        }
-        
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         context.perform {
             do {
                 try context.save()
             } catch let error as NSError {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                print("Unresolved error \(error), \(error.userInfo)")
             }
-        }
-    }
-    
-    public func saveDerivedContext(_ context: NSManagedObjectContext) {
-        context.perform {
-            do {
-                try context.save()
-            } catch let error as NSError {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-            
-            self.saveContext(self.mainContext)
         }
     }
 }
