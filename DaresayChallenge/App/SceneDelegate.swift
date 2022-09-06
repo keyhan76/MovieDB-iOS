@@ -11,10 +11,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
+    var coreDataStore: CoreDataStore!
+    var coreDataAPI: CoreDataAPI!
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         setupCoordinator(for: scene)
+        setupCoreDataStore()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -61,5 +64,10 @@ private extension SceneDelegate {
         
         appCoordinator = AppCoordinator(navigationController)
         appCoordinator?.start(animated: true)
+    }
+    
+    func setupCoreDataStore() {
+        coreDataStore = CoreDataStore(.persistent)
+        coreDataAPI = CoreDataAPI(managedContext: coreDataStore.mainContext, coreDataStore: coreDataStore)
     }
 }

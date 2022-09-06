@@ -53,7 +53,16 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     }
     
     func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
-        let movieDetailVC = MovieDetailViewController(selectedMovie: movie)
+        
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+            return
+        }
+        
+        guard let coreDataAPI = sceneDelegate.coreDataAPI else { return }
+        
+        let viewModel = MovieDetailViewModel(coreDataAPI: coreDataAPI, selectedMovie: movie)
+        
+        let movieDetailVC = MovieDetailViewController(viewModel: viewModel)
         
         // Set delegate
         movieDetailVC.delegate = viewController
