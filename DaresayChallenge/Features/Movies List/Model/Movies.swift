@@ -63,8 +63,17 @@ final class MoviesModel: ServerModel {
         case voteCount
     }
     
+    // MARK: - Init
     init() { }
     
+    convenience init(title: String?, posterURL: URL?, description: String?) {
+        self.init()
+        self.title = title
+        self.posterPath = posterURL?.absoluteString
+        self.overview = description
+    }
+    
+    // MARK: - Helpers
     private func imageURL(_ url: String?, typeAndSize: ImageTypes) -> URL? {
         guard let url = url else { return nil }
         let urlBuilder = ImageBaseUrlBuilder(forTypeAndSize: typeAndSize)

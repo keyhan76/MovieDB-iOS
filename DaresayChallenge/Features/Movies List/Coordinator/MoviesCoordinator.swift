@@ -23,6 +23,18 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     
     var type: CoordinatorType { .movies }
     
+    var coreDataAPI: CoreDataAPI {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+            fatalError("Couldn't find scene")
+        }
+        
+        guard let coreDataAPI = sceneDelegate.coreDataAPI else {
+            fatalError("Couldn't create coreDataAPI")
+        }
+        
+        return coreDataAPI
+    }
+    
     required init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
@@ -54,12 +66,6 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     
     func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
         
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
-            return
-        }
-        
-        guard let coreDataAPI = sceneDelegate.coreDataAPI else { return }
-        
         let viewModel = MovieDetailViewModel(coreDataAPI: coreDataAPI, selectedMovie: movie)
         
         let movieDetailVC = MovieDetailViewController(viewModel: viewModel)
@@ -71,7 +77,9 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     }
     
     func showFavoriteMoviesViewController(animated: Bool = true) {
-        let favoritesVC = FavoriteMoviesViewController()
+        
+        let viewModel = FavoriteMoviesViewModel(coreDataAPI: coreDataAPI)
+        let favoritesVC = FavoriteMoviesViewController(viewModel: viewModel)
         
         navigationController.pushViewController(favoritesVC, animated: animated)
     }

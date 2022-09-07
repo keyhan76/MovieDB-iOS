@@ -54,6 +54,20 @@ final class CoreDataAPI {
         return objects
     }
     
+    public func fetch<T: NSManagedObject>(entity: T.Type) throws -> NSFetchedResultsController<T> {
+        
+        let entityName = String(describing: entity)
+        let request = NSFetchRequest<T>(entityName: entityName)
+        request.fetchBatchSize = 20
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        let fetchedResultsController = NSFetchedResultsController<T>(fetchRequest: request, managedObjectContext: managedContext, sectionNameKeyPath: nil, cacheName: nil)
+         
+        try fetchedResultsController.performFetch()
+        
+        return fetchedResultsController
+    }
+    
     private func generate<T: NSManagedObject>(entity: T.Type) -> NSEntityDescription {
         let entityName = String(describing: entity)
         
