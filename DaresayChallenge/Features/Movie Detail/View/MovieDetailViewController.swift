@@ -69,13 +69,13 @@ final class MovieDetailViewController: UIViewController {
     
     private var isFavorite: Bool! {
         didSet {
-            selectedMovie.isFavorite = isFavorite
+            viewModel.selectedMovie.isFavorite = isFavorite
             favoriteButton.configuration?.image = isFavorite ? favoriteImage : unfavoriteImage
             favoriteButton.configuration?.title = isFavorite ? removeFavoriteTitle : favoriteTile
         }
     }
     
-    private var selectedMovie: MoviesModel
+    private let viewModel: MovieDetailViewModel
     private let favoriteTile = "Add to favorites"
     private let removeFavoriteTitle = "Remove from favorites"
     private lazy var placeHolderImage: UIImage = { UIImage(systemName: "film")! }()
@@ -85,8 +85,8 @@ final class MovieDetailViewController: UIViewController {
     public weak var delegate: ReloadFavoritesDelegate?
     
     // MARK: - Init
-    init(selectedMovie: MoviesModel) {
-        self.selectedMovie = selectedMovie
+    init(viewModel: MovieDetailViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -112,7 +112,7 @@ final class MovieDetailViewController: UIViewController {
     // MARK: - Actions
     private func favoriteButtonTapped() {
         isFavorite = !isFavorite
-        isFavorite ? FavoriteMoviesHandler.shared.addToFavorites(selectedMovie) : FavoriteMoviesHandler.shared.removeFromFavorites(selectedMovie)
+        viewModel.addToFavorites(isFavorite: isFavorite)
         delegate?.refresh()
     }
 }
@@ -167,17 +167,18 @@ private extension MovieDetailViewController {
     }
     
     func populate() {
-        titleLabel.text = selectedMovie.originalTitle
-        descriptionLabel.text = selectedMovie.overview
-        isFavorite = selectedMovie.isFavorite
+        titleLabel.text = viewModel.selectedMovie.originalTitle
+        descriptionLabel.text = viewModel.selectedMovie.overview
         
-        if let rating = selectedMovie.voteAverage {
+        if let rating = viewModel.selectedMovie.voteAverage {
             ratingLabel.text = "Rating: \(String(describing: rating * 10))%"
         }
         
-        if let imageURL = selectedMovie.backgroundImageURL {
+        if let imageURL = viewModel.selectedMovie.backgroundImageURL {
             backgroundImageView.load(url: imageURL, placeholder: placeHolderImage)
         }
+        
+        isFavorite = viewModel.isAvailableInFavorites()
     }
     
     func setupButtonAction() {

@@ -10,7 +10,7 @@ import UIKit
 final class FavoriteMoviesViewController: UIViewController {
 
     // MARK: - Variables
-    private let viewModel: FavoriteMoviesViewModel = FavoriteMoviesViewModel()
+    private let viewModel: FavoriteMoviesViewModel
     private var dataSourceProvider: TableViewDataSourceProvider<FavoriteMoviesViewModel, MovieTableViewCell>!
     
     private lazy var tableView: UITableView = {
@@ -18,6 +18,17 @@ final class FavoriteMoviesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
+    
+    // MARK: - Init
+    init(viewModel: FavoriteMoviesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
