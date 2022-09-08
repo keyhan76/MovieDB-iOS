@@ -32,7 +32,7 @@ class MoviesViewModel {
     private var allMovies: [MoviesModel] = []
     private var configCache: ConfigurationModel?
     
-    private lazy var favoriteMovies: [Movie] = {
+    public lazy var favoriteMovies: [Movie] = {
         var favMovies: [Movie] = []
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
             return []

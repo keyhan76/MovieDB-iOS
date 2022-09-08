@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol MoviesCoordinatorProtocol: Coordinator {
     func showMoviesViewController(animated: Bool)
@@ -67,13 +68,15 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
         
         let viewModel = MovieDetailViewModel(coreDataAPI: coreDataAPI, selectedMovie: movie)
+        viewModel.delegate = viewController
+
+//        let movieDetailVC = MovieDetailViewController(viewModel: viewModel)
+//
+//        // Set delegate
+//        movieDetailVC.delegate = viewController
+        let movieDetailView = UIHostingController(rootView: MovieDetailView(viewModel: viewModel))
         
-        let movieDetailVC = MovieDetailViewController(viewModel: viewModel)
-        
-        // Set delegate
-        movieDetailVC.delegate = viewController
-        
-        navigationController.pushViewController(movieDetailVC, animated: animated)
+        navigationController.pushViewController(movieDetailView, animated: animated)
     }
     
     func showFavoriteMoviesViewController(animated: Bool = true) {

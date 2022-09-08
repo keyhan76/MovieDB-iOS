@@ -5,14 +5,37 @@
 //  Created by Keihan Kamangar on 2022-09-06.
 //
 
-import Foundation
+import SwiftUI
 import CoreData
 
-final class MovieDetailViewModel {
+final class MovieDetailViewModel: ObservableObject {
     
     // MARK: - Variables
     private let coreDataAPI: CoreDataAPI
     public let selectedMovie: MoviesModel
+    
+    public weak var delegate: ReloadFavoritesDelegate?
+    
+    private var savedMovie: Movie?
+    
+    var movieTitle: String {
+        selectedMovie.title ?? ""
+    }
+    
+    var movieDescription: String {
+        selectedMovie.overview ?? ""
+    }
+    
+    var movieImageURL: URL? {
+        selectedMovie.backgroundImageURL
+    }
+    
+    var movieRating: String {
+        if let rating = selectedMovie.voteAverage {
+            return "Rating: \(String(describing: rating * 10))%"
+        }
+        return ""
+    }
     
     // MARK: - Init
     init(coreDataAPI: CoreDataAPI, selectedMovie: MoviesModel) {
@@ -25,13 +48,29 @@ final class MovieDetailViewModel {
         
         selectedMovie.isFavorite = isFavorite
         
+        delegate?.refresh()
+        
+        // If saved movie exists, remove it from database
+        if let savedMovie = savedMovie {
+            
+            do {
+                try coreDataAPI.delete(entity: savedMovie)
+            } catch let error {
+                print(error)
+            }
+            
+            return
+        }
+        
         let movie = coreDataAPI.createManagedObject(entity: Movie.self)  as! Movie
         
         movie.id = Int64(selectedMovie.movieID ?? 0)
-        movie.imageURL = selectedMovie.backgroundImageURL
-        movie.title = selectedMovie.originalTitle
+        movie.imageURL = selectedMovie.posterURL
+        movie.title = selectedMovie.title
         movie.movieDescription = selectedMovie.overview
         movie.isFavorite = isFavorite
+        
+        savedMovie = movie
         
         do {
             try coreDataAPI.save()
@@ -44,6 +83,7 @@ final class MovieDetailViewModel {
         do {
             let objects = try coreDataAPI.fetchObject(movieID: selectedMovie.movieID ?? 0, entity: Movie.self)
             if let movie = objects.first {
+                savedMovie = movie
                 return movie.isFavorite
             }
         } catch let error {

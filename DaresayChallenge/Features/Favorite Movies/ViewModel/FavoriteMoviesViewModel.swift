@@ -29,7 +29,7 @@ final class FavoriteMoviesViewModel: MoviesViewModel {
     override var itemsCount: Int {
         fetchedResultsController.fetchedObjects?.count ?? 0
     }
-    
+
     // MARK: - Init
     init(coreDataAPI: CoreDataAPI) {
         self.coreDataAPI = coreDataAPI
@@ -44,5 +44,9 @@ final class FavoriteMoviesViewModel: MoviesViewModel {
         let movieModel = MoviesModel(title: movie.title, posterURL: movie.imageURL, description: movie.movieDescription)
         
         return movieModel
+    }
+    
+    override func isFavorite(forItemAt indexPath: Int) -> Bool {
+        fetchedResultsController.fetchedObjects?[indexPath].isFavorite ?? false
     }
 }
