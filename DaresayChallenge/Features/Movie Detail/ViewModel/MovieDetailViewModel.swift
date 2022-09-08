@@ -22,16 +22,19 @@ final class MovieDetailViewModel: ObservableObject {
         selectedMovie.title ?? ""
     }
     
+    var movieDescription: String {
+        selectedMovie.overview ?? ""
+    }
+    
+    var movieImageURL: URL? {
+        selectedMovie.backgroundImageURL
+    }
+    
     var movieRating: String {
         if let rating = selectedMovie.voteAverage {
             return "Rating: \(String(describing: rating * 10))%"
         }
-        
         return ""
-    }
-    
-    var movieDescription: String {
-        selectedMovie.overview ?? ""
     }
     
     // MARK: - Init

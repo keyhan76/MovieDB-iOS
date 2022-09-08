@@ -39,6 +39,12 @@ final class MoviesViewController: UIViewController {
         navigationController?.setNavigationBarHidden(false, animated: true)
         navigationController?.navigationBar.tintColor = .systemBlue
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationController?.navigationBar.tintColor = .white
+    }
 }
 
 // MARK: - Helpers

@@ -15,7 +15,7 @@ struct MovieDetailView: View {
         GeometryReader { metrics in
             VStack(spacing: 0) {
                 
-                ImageView()
+                ImageView(url: viewModel.movieImageURL)
                     .frame(height: metrics.size.height * 0.35)
                 
                 DetailView(isFavorite: viewModel.isAvailableInFavorites(), viewModel: viewModel)
@@ -93,11 +93,18 @@ struct DescriptionView: View {
 
 // MARK: - Image View
 struct ImageView: View {
+    
+    var url: URL?
+    
     var body: some View {
-        Image("")
-            .resizable()
-            .scaledToFill()
-            .background(.red)
-            .ignoresSafeArea()
+        AsyncImage(url: url) { image in
+            image
+                .resizable()
+                .scaledToFill()
+                .background(.red)
+                .ignoresSafeArea()
+        } placeholder: {
+            Image(systemName: "film")
+        }
     }
 }

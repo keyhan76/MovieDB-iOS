@@ -36,6 +36,12 @@ final class FavoriteMoviesViewController: UIViewController {
 
         setupUI()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.navigationBar.tintColor = .systemBlue
+    }
 }
 
 // MARK: - Helpers
