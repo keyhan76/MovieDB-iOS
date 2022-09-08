@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct MovieDetailView: View {
+    
+    @ObservedObject var viewModel: MovieDetailViewModel
+    
     var body: some View {
         GeometryReader { metrics in
             VStack(spacing: 0) {
@@ -15,21 +18,18 @@ struct MovieDetailView: View {
                 ImageView()
                     .frame(height: metrics.size.height * 0.35)
                 
-                DetailView()
-                
+                DetailView(isFavorite: viewModel.isAvailableInFavorites(), viewModel: viewModel)
             }
         }
     }
 }
 
-struct MovieDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        MovieDetailView()
-    }
-}
-
 // MARK: - Detail View
 struct DetailView: View {
+    
+    @State var isFavorite: Bool
+    @ObservedObject var viewModel: MovieDetailViewModel
+    
     var body: some View {
         ZStack {
             Color(.white)
@@ -37,14 +37,21 @@ struct DetailView: View {
             
             VStack(alignment: .center) {
                 
-                DescriptionView()
+                DescriptionView(title: viewModel.movieTitle,
+                                rating: viewModel.movieRating,
+                                description: viewModel.movieDescription)
                 
                 Spacer()
                 
                 Button {
-                    
+                    isFavorite = !isFavorite
+                    viewModel.addToFavorites(isFavorite: isFavorite)
                 } label: {
-                    Label("Add to Favorites", systemImage: "heart")
+                    if isFavorite {
+                        Label("Remove from Favorites", systemImage: "heart.fill")
+                    } else {
+                        Label("Add to Favorites", systemImage: "heart")
+                    }
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
@@ -60,16 +67,21 @@ struct DetailView: View {
 
 // MARK: - Description View
 struct DescriptionView: View {
+    
+    var title: String
+    var rating: String
+    var description: String
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Title goes here")
+                Text(title)
                     .font(.title)
                 
-                Text("Rating")
+                Text(rating)
                     .font(.callout)
                 
-                Text("Description")
+                Text(description)
                     .font(.footnote)
                     .foregroundColor(.gray)
             }
