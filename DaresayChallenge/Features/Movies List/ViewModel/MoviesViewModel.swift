@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol ListViewModelable {
     var totalCount: Int { get set }
@@ -61,7 +62,7 @@ class MoviesViewModel {
     }
     
     // MARK: - Public methods
-    public func populate() {
+    @MainActor public func populate() {
         
         let dispatchGroup = DispatchGroup()
         
@@ -84,38 +85,37 @@ class MoviesViewModel {
         }
     }
     
-    public func getPopularMovies(dispatchGroup: DispatchGroup? = nil) {
+    @MainActor public func getPopularMovies(dispatchGroup: DispatchGroup? = nil) {
         
         let httpRequest = ServerRequest.Movies.getMovies(page: currentPage)
-        moviesService.getMovies(httpRequest: httpRequest) { [weak self]  result in
+        
+        Task {
+            
             defer {
                 if let dispatchGroup = dispatchGroup {
                     dispatchGroup.leave()
                 }
             }
             
-            guard let self = self else { return }
+            let (movieResult, error) = await moviesService.getMovies(httpRequest: httpRequest)
             
-            switch result {
-            case .success(let response):
-                guard let movies = response.results else { return }
-                
+            if let error = error {
+                print(error)
+                return
+            }
+            
+            if let movies = movieResult?.results {
                 if movies.isEmpty {
                     self.isFinished = true
                 }
                 
                 self.allMovies.append(contentsOf: movies)
                 
-                // This delegate should only be called when
-                // aren't using a dispatchGroup
                 if dispatchGroup == nil {
                     self.delegate?.displayMovies(displayState: .success(self.allMovies))
                 }
                 
                 self.currentPage += 1
-                
-            case .failure(let error):
-                print(error)
             }
         }
     }
@@ -153,20 +153,23 @@ class MoviesViewModel {
     }
     
     // MARK: - Helpers
-    private func getConfigs(dispatchGroup: DispatchGroup? = nil) {
+    @MainActor private func getConfigs(dispatchGroup: DispatchGroup? = nil) {
         
         let httpRequest = ServerRequest.Configuration.getConfigs()
-        moviesService.getConfigs(httpRequest: httpRequest) { [weak self] result in
+        
+        Task {
             defer { dispatchGroup?.leave() }
             
-            guard let self = self else { return }
+            let (configs, error) = await moviesService.getConfigs(httpRequest: httpRequest)
             
-            switch result {
-            case .success(let response):
-                self.configCache = response
-                UserDefaultsData.configModel = response
-            case .failure(let error):
+            if let error = error {
                 print(error)
+                return
+            }
+            
+            if let configs = configs {
+                self.configCache = configs
+                UserDefaultsData.configModel = configs
             }
         }
     }
@@ -182,7 +185,7 @@ extension MoviesViewModel: ListViewModelable {
         return indexPath.row == itemsCount - 1
     }
     
-    func prefetchData() {
+    @MainActor func prefetchData() {
         getPopularMovies()
     }
 }

@@ -70,10 +70,6 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
         let viewModel = MovieDetailViewModel(coreDataAPI: coreDataAPI, selectedMovie: movie)
         viewModel.delegate = viewController
 
-//        let movieDetailVC = MovieDetailViewController(viewModel: viewModel)
-//
-//        // Set delegate
-//        movieDetailVC.delegate = viewController
         let movieDetailView = UIHostingController(rootView: MovieDetailView(viewModel: viewModel))
         
         navigationController.pushViewController(movieDetailView, animated: animated)
