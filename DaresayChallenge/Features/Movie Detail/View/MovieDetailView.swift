@@ -34,6 +34,7 @@ struct DetailView: View {
         ZStack {
             Color(.white)
                 .cornerRadius(20)
+                .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailContainerView.rawValue)
             
             VStack(alignment: .center) {
                 
@@ -56,6 +57,7 @@ struct DetailView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .tint(.blue)
+                .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailFavoriteButton.rawValue)
                 
                 Spacer()
             }
@@ -77,13 +79,16 @@ struct DescriptionView: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text(title)
                     .font(.title)
+                    .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailTitleLabel.rawValue)
                 
                 Text(rating)
                     .font(.callout)
+                    .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailRatingLabel.rawValue)
                 
                 Text(description)
                     .font(.footnote)
                     .foregroundColor(.gray)
+                    .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailDescLabel.rawValue)
             }
             
             Spacer()
@@ -103,6 +108,7 @@ struct ImageView: View {
                 .scaledToFill()
                 .background(.red)
                 .ignoresSafeArea()
+                .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailBackgroundImageView.rawValue)
         } placeholder: {
             Image(systemName: "film")
         }
