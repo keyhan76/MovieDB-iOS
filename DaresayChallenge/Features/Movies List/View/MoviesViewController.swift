@@ -28,7 +28,6 @@ final class MoviesViewController: UIViewController {
         super.viewDidLoad()
 
         setupUI()
-        setupBindings()
         
         populate()
     }
@@ -64,11 +63,17 @@ private extension MoviesViewController {
     }
     
     func populate() {
-        viewModel.populate()
-    }
-    
-    func setupBindings() {
-        viewModel.delegate = self
+        view.animateActivityIndicator()
+        
+        Task {
+            let _ = await viewModel.populate()
+            setupTableView()
+            dataSourceProvider.append()
+            
+            if !viewModel.isLoading {
+                view.removeActivityIndicator()
+            }
+        }
     }
     
     func setupTableView() {
@@ -95,31 +100,6 @@ private extension MoviesViewController {
             let item = self.viewModel.didSelect(itemAt: indexPath)
             
             self.didSendEventClosure?(.movieDetail(item))
-        }
-    }
-}
-
-// MARK: -
-extension MoviesViewController: MoviesViewModelDelegate {
-    func populate(displayState: DisplayState<[MoviesModel]>) {
-        switch displayState {
-        case .loading:
-            view.animateActivityIndicator()
-        case .success:
-            setupTableView()
-            dataSourceProvider.append()
-            view.removeActivityIndicator()
-        case .failure:
-            view.removeActivityIndicator()
-        }
-    }
-    
-    func displayMovies(displayState: DisplayState<[MoviesModel]>) {
-        switch displayState {
-        case .success:
-            dataSourceProvider.append()
-        default:
-            break
         }
     }
 }

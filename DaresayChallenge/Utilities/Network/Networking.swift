@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PromiseKit
 
 protocol ServerProtocol {
     var session: URLSession! { get }
@@ -15,7 +14,7 @@ protocol ServerProtocol {
     
     var validResponseCodes: [Int]! { get }
     
-    func perform<T: Codable>(request: HTTPRequest) -> Promise<ServerData<T>>
+    func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T>
 }
 
 final class MovieServer: NSObject, ServerProtocol {
@@ -41,82 +40,40 @@ final class MovieServer: NSObject, ServerProtocol {
         self.validResponseCodes = validResponseCodes
     }
     
-    func perform<T: Codable>(request: HTTPRequest) -> Promise<ServerData<T>> {
-        return Promise { seal in
-            
-            func reject(_ error: APIError) {
-                print(request)
-                print("⚠️ at: \(error) ⚠️")
-                dispatchQueue.async {
-                    seal.reject(error)
-                }
-                
+    func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T> {
+        
+        // Check to see if we have a valid request
+        guard let urlRequest = request.request else {
+            throw APIError.invalidRequest
+        }
+        
+        var (data, response) = try await session.data(for: urlRequest)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard self.validResponseCodes.contains(httpResponse.statusCode) else {
+            let errorModel = self.generateServerError(from: response, responseData: data, status: httpResponse.statusCode)
+            throw APIError.invalidResponseCode(errorModel)
+        }
+        
+        let httpHeader = httpResponse.allHeaderFields
+        
+        do {
+            if data.isEmpty || T.self == ServerModels.EmptyServerModel.self {
+                data = "{}".data(using: .utf8) ?? Data()
             }
             
-            // Check to see if we have a valid request
-            guard let urlRequest = request.request as URLRequest? else {
-                return reject(APIError.invalidRequest)
-            }
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let responseObject = try decoder.decode(T.self, from: data)
             
-            // Generate the task
-            let dataTask = session.dataTask(with: urlRequest) { [weak self] (responseData, urlResponse, error) -> Void in
-                
-                guard let self = self else { return }
-                
-                // If error is not nil, it means there was an error in network connection.
-                if let netError = error {
-                    return reject(APIError.networkError(netError))
-                }
-                
-                // Convert the response to usable response.
-                guard let httpResponse = urlResponse as? HTTPURLResponse else {
-                    return reject(APIError.invalidResponse)
-                }
-                
-                let httpHeader = httpResponse.allHeaderFields
-                
-                if var serverTime = httpHeader["ServerTime"] as? String {
-                    serverTime.removeFirst()
-                    serverTime.removeLast()
-                    let serverTimeWithoutTimeZone = serverTime.components(separatedBy: "+")
-                    if let date = DateFormatter.iso8601Full.date(from: serverTimeWithoutTimeZone[0]) {
-                        ServerTime.shared.now = date
-                    }
-                }
-                
-                // Check to see if the response code is what we were waiting for.
-                guard self.validResponseCodes.contains(httpResponse.statusCode) else {
-                    let errorModel = self.generateServerError(from: urlResponse, responseData: responseData, status: httpResponse.statusCode)
-                    return reject(APIError.invalidResponseCode(errorModel))
-                }
-                
-                // Get the data
-                guard var responseData = responseData else {
-                    return reject(APIError.noResponseData)
-                }
-                
-                // Parse Response
-                do {
-                    if responseData.isEmpty || T.self == ServerModels.EmptyServerModel.self {
-                        responseData = "{}".data(using: .utf8) ?? Data()
-                    }
-                    
-                    let decoder = JSONDecoder()
-                    decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    let responseObject = try decoder.decode(T.self, from: responseData)
-                    
-                    let serverData = ServerData(httpStatus: httpResponse.statusCode, model: responseObject, httpHeaders: httpHeader)
-                    
-                    self.dispatchQueue.async {
-                        seal.fulfill(serverData)
-                    }
-                    
-                } catch {
-                    return reject(APIError.parserFailed(error))
-                }
-            }
-            dataTask.resume()
+            return ServerData(httpStatus: httpResponse.statusCode, model: responseObject, httpHeaders: httpHeader)
+            
+        } catch {
+            throw APIError.parserFailed(error)
         }
     }
     

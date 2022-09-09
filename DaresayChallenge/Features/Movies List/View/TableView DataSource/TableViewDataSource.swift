@@ -84,7 +84,11 @@ final class TableViewDataSourceProvider<T: ListViewModelable, Cell: TableViewCel
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         if indexPaths.contains(where: viewModel.isLoadingCell) && !viewModel.isFinished {
             print("==========get new data======")
-            viewModel.prefetchData()
+            Task {
+                await viewModel.prefetchData()
+                
+                append()
+            }
         }
     }
 }

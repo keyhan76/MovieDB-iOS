@@ -9,12 +9,9 @@ import Foundation
 
 // Using Decorator pattern for Service and ViewModel
 
-typealias MoviesCompletionHandler = (Result<ServerModels.Movies.Response, Error>) -> Void
-typealias ConfigCompletionHandler = (Result<ServerModels.Configuration.Response, Error>) -> Void
-
 protocol MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest, completionHandler: @escaping MoviesCompletionHandler)
-    func getConfigs(httpRequest: HTTPRequest, completionHandler: @escaping ConfigCompletionHandler)
+    func getMovies(httpRequest: HTTPRequest) async throws -> ServerModels.Movies.Response
+    func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response
 }
 
 // MARK: - Server Request
@@ -55,27 +52,13 @@ final class MoviesService {
 
 // MARK: - MoviesService Protocol
 extension MoviesService: MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest, completionHandler: @escaping MoviesCompletionHandler) {
-        serverManager.perform(request: httpRequest)
-        
-            .done { (result: ServerData<ServerModels.Movies.Response>) in
-                completionHandler(.success(result.model))
-            }
-        
-            .catch { error in
-                completionHandler(.failure(error))
-            }
+    func getMovies(httpRequest: HTTPRequest) async throws -> ServerModels.Movies.Response {
+        let result: ServerData<ServerModels.Movies.Response> = try await serverManager.perform(request: httpRequest)
+        return result.model
     }
     
-    func getConfigs(httpRequest: HTTPRequest, completionHandler: @escaping ConfigCompletionHandler) {
-        serverManager.perform(request: httpRequest)
-        
-            .done { (result: ServerData<ServerModels.Configuration.Response>) in
-                completionHandler(.success(result.model))
-            }
-        
-            .catch { error in
-                completionHandler(.failure(error))
-            }
+    func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response {
+        let configs: ServerData<ServerModels.Configuration.Response> = try await serverManager.perform(request: httpRequest)
+        return configs.model
     }
 }

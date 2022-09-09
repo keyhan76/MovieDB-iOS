@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol ListViewModelable {
     var totalCount: Int { get set }
@@ -13,20 +14,13 @@ protocol ListViewModelable {
     var isFinished: Bool { get set }
     
     func isLoadingCell(for indexPath: IndexPath) -> Bool
-    func prefetchData()
-}
-
-protocol MoviesViewModelDelegate: AnyObject {
-    func populate(displayState: DisplayState<[MoviesModel]>)
-    func displayMovies(displayState: DisplayState<[MoviesModel]>)
+    func prefetchData() async
 }
 
 class MoviesViewModel {
     
     // MARK: - Variables
     private var moviesService: MoviesServiceProtocol
-    
-    public weak var delegate: MoviesViewModelDelegate?
     
     private var currentPage: UInt = 1
     private var allMovies: [MoviesModel] = []
@@ -55,69 +49,46 @@ class MoviesViewModel {
         return allMovies.count
     }
     
+    var isLoading = false
+    
     // MARK: - Init
     init(moviesService: MoviesServiceProtocol) {
         self.moviesService = moviesService
     }
     
     // MARK: - Public methods
-    public func populate() {
+    @MainActor public func populate() async -> [MoviesModel] {
+        isLoading = true
         
-        let dispatchGroup = DispatchGroup()
+        async let movies = getPopularMovies()
+        async let configs = getConfigs()
         
-        delegate?.populate(displayState: .loading)
+        let _ = await (movies, configs)
         
-        dispatchGroup.enter()
-        getPopularMovies(dispatchGroup: dispatchGroup)
-        
-        dispatchGroup.enter()
-        getConfigs(dispatchGroup: dispatchGroup)
-        
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            guard let self = self else { return }
-            
-            if let _ = self.configCache, !self.allMovies.isEmpty {
-                self.delegate?.populate(displayState: .success(self.allMovies))
-            } else {
-                self.delegate?.populate(displayState: .failure("Couldn't fetch data."))
-            }
-        }
+        isLoading = false
+        return allMovies
     }
     
-    public func getPopularMovies(dispatchGroup: DispatchGroup? = nil) {
-        
+    @MainActor public func getPopularMovies() async -> [MoviesModel] {
         let httpRequest = ServerRequest.Movies.getMovies(page: currentPage)
-        moviesService.getMovies(httpRequest: httpRequest) { [weak self]  result in
-            defer {
-                if let dispatchGroup = dispatchGroup {
-                    dispatchGroup.leave()
-                }
-            }
+        
+        do {
+            let results = try await moviesService.getMovies(httpRequest: httpRequest)
             
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let response):
-                guard let movies = response.results else { return }
-                
+            if let movies = results.results {
                 if movies.isEmpty {
                     self.isFinished = true
                 }
                 
                 self.allMovies.append(contentsOf: movies)
                 
-                // This delegate should only be called when
-                // aren't using a dispatchGroup
-                if dispatchGroup == nil {
-                    self.delegate?.displayMovies(displayState: .success(self.allMovies))
-                }
-                
                 self.currentPage += 1
-                
-            case .failure(let error):
-                print(error)
             }
+        } catch {
+            print(error)
         }
+        
+        return allMovies
     }
     
     public func title(forItemAt indexPath: Int) -> String? {
@@ -153,22 +124,19 @@ class MoviesViewModel {
     }
     
     // MARK: - Helpers
-    private func getConfigs(dispatchGroup: DispatchGroup? = nil) {
-        
+    @discardableResult
+    private func getConfigs() async -> ConfigurationModel? {
         let httpRequest = ServerRequest.Configuration.getConfigs()
-        moviesService.getConfigs(httpRequest: httpRequest) { [weak self] result in
-            defer { dispatchGroup?.leave() }
-            
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let response):
-                self.configCache = response
-                UserDefaultsData.configModel = response
-            case .failure(let error):
-                print(error)
-            }
+        
+        do {
+            let results = try await moviesService.getConfigs(httpRequest: httpRequest)
+            self.configCache = results
+            UserDefaultsData.configModel = results
+        } catch {
+            print(error)
         }
+        
+        return configCache
     }
     
     func item(at index: Int) -> MoviesModel {
@@ -182,7 +150,7 @@ extension MoviesViewModel: ListViewModelable {
         return indexPath.row == itemsCount - 1
     }
     
-    func prefetchData() {
-        getPopularMovies()
+    func prefetchData() async {
+        let _ = await getPopularMovies()
     }
 }

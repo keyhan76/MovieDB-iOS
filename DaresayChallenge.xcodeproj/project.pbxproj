@@ -562,7 +562,7 @@
 				A85273FF2864494000571D95 /* Sources */,
 				A85274002864494000571D95 /* Frameworks */,
 				A85274012864494000571D95 /* Resources */,
-				7F9B251B883BDD6CA970F46B /* [CP] Embed Pods Frameworks */,
+				EAAA8F1CBA08956826A58F51 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -600,7 +600,7 @@
 				A852741F2864494200571D95 /* Sources */,
 				A85274202864494200571D95 /* Frameworks */,
 				A85274212864494200571D95 /* Resources */,
-				0BFF8B728BB78AEA25934576 /* [CP] Embed Pods Frameworks */,
+				82C425F1ACCF24DDDD6AF0D0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -684,23 +684,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0BFF8B728BB78AEA25934576 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		67ABC0EE8DBF64A36C809660 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -745,21 +728,21 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7F9B251B883BDD6CA970F46B /* [CP] Embed Pods Frameworks */ = {
+		82C425F1ACCF24DDDD6AF0D0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9C4B77D5F7BC5C6C18C62CA5 /* [CP] Check Pods Manifest.lock */ = {
@@ -782,6 +765,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EAAA8F1CBA08956826A58F51 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
