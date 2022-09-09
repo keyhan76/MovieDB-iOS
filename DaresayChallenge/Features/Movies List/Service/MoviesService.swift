@@ -10,8 +10,8 @@ import Foundation
 // Using Decorator pattern for Service and ViewModel
 
 protocol MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest) async -> (ServerModels.Movies.Response?, APIError?)
-    func getConfigs(httpRequest: HTTPRequest) async -> (ServerModels.Configuration.Response?, APIError?)
+    func getMovies(httpRequest: HTTPRequest) async throws -> ServerModels.Movies.Response
+    func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response
 }
 
 // MARK: - Server Request
@@ -52,21 +52,13 @@ final class MoviesService {
 
 // MARK: - MoviesService Protocol
 extension MoviesService: MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest) async -> (ServerModels.Movies.Response?, APIError?) {
-            do {
-                let movies: ServerData<ServerModels.Movies.Response> = try await serverManager.perform(request: httpRequest)
-                return (movies.model, nil)
-            } catch {
-                return (nil, error as? APIError)
-            }
+    func getMovies(httpRequest: HTTPRequest) async throws -> ServerModels.Movies.Response {
+        let result: ServerData<ServerModels.Movies.Response> = try await serverManager.perform(request: httpRequest)
+        return result.model
     }
     
-    func getConfigs(httpRequest: HTTPRequest) async -> (ServerModels.Configuration.Response?, APIError?) {
-        do {
-            let configs: ServerData<ServerModels.Configuration.Response> = try await serverManager.perform(request: httpRequest)
-            return (configs.model, nil)
-        } catch {
-            return (nil, error as? APIError)
-        }
+    func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response {
+        let configs: ServerData<ServerModels.Configuration.Response> = try await serverManager.perform(request: httpRequest)
+        return configs.model
     }
 }

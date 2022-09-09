@@ -97,25 +97,24 @@ class MoviesViewModel {
                 }
             }
             
-            let (movieResult, error) = await moviesService.getMovies(httpRequest: httpRequest)
-            
-            if let error = error {
+            do {
+                let results = try await moviesService.getMovies(httpRequest: httpRequest)
+                
+                if let movies = results.results {
+                    if movies.isEmpty {
+                        self.isFinished = true
+                    }
+                    
+                    self.allMovies.append(contentsOf: movies)
+                    
+                    if dispatchGroup == nil {
+                        self.delegate?.displayMovies(displayState: .success(self.allMovies))
+                    }
+                    
+                    self.currentPage += 1
+                }
+            } catch {
                 print(error)
-                return
-            }
-            
-            if let movies = movieResult?.results {
-                if movies.isEmpty {
-                    self.isFinished = true
-                }
-                
-                self.allMovies.append(contentsOf: movies)
-                
-                if dispatchGroup == nil {
-                    self.delegate?.displayMovies(displayState: .success(self.allMovies))
-                }
-                
-                self.currentPage += 1
             }
         }
     }
@@ -160,16 +159,12 @@ class MoviesViewModel {
         Task {
             defer { dispatchGroup?.leave() }
             
-            let (configs, error) = await moviesService.getConfigs(httpRequest: httpRequest)
-            
-            if let error = error {
+            do {
+                let results = try await moviesService.getConfigs(httpRequest: httpRequest)
+                self.configCache = results
+                UserDefaultsData.configModel = results
+            } catch {
                 print(error)
-                return
-            }
-            
-            if let configs = configs {
-                self.configCache = configs
-                UserDefaultsData.configModel = configs
             }
         }
     }

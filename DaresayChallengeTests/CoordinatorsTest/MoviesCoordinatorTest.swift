@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import SwiftUI
 @testable import DaresayChallenge
 
 class MoviesCoordinatorTest: XCTestCase {
@@ -44,9 +45,9 @@ class MoviesCoordinatorTest: XCTestCase {
     }
     
     func testShowsMoviesDetailVC() {
-        coordinator?.showMovieDetailViewController(with: MoviesModel())
+        coordinator?.showMovieDetailViewController(viewController: MoviesViewController(), with: MoviesModel())
         
-        let visibleVC = navigationController.visibleViewController as? MovieDetailViewController
+        let visibleVC = navigationController.visibleViewController as? UIHostingController<MovieDetailView>
         XCTAssertNotNil(visibleVC, "Check if presented vc is MovieDetailViewController")
     }
     

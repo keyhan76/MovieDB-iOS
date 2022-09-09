@@ -7,7 +7,6 @@ target 'DaresayChallenge' do
 
   # Pods for DaresayChallenge
 
-pod 'PromiseKit'
 pod 'Bagel'
 
   target 'DaresayChallengeTests' do

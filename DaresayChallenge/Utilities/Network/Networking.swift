@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PromiseKit
 
 protocol ServerProtocol {
     var session: URLSession! { get }
@@ -44,7 +43,7 @@ final class MovieServer: NSObject, ServerProtocol {
     func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T> {
         
         // Check to see if we have a valid request
-        guard let urlRequest = request.request as URLRequest? else {
+        guard let urlRequest = request.request else {
             throw APIError.invalidRequest
         }
         

@@ -7,8 +7,9 @@
 
 import Foundation
 
-class URLProtocolMock: URLProtocol {
-    static var testURLs = [URL?: Data]()
+class MockURLProtocol: URLProtocol {
+    static var error: Error?
+    static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
     
     override class func canInit(with request: URLRequest) -> Bool {
         return true
@@ -19,18 +20,28 @@ class URLProtocolMock: URLProtocol {
     }
     
     override func startLoading() {
-        // if we have a valid URL…
-        if let url = request.url {
-            // …and if we have test data for that URL…
-            if let data = URLProtocolMock.testURLs[url] {
-                // …load it immediately.
-                self.client?.urlProtocol(self, didLoad: data)
-            }
+        // Handle mocking error
+        if let error = MockURLProtocol.error {
+            client?.urlProtocol(self, didFailWithError: error)
+            return
         }
         
-        // mark that we've finished
-        self.client?.urlProtocolDidFinishLoading(self)
+        guard let handler = MockURLProtocol.requestHandler else {
+            assertionFailure("Received unexpected request with no handler set")
+            return
+        }
+        
+        do {
+            let (response, data) = try handler(request)
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: data)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
     }
     
-    override func stopLoading() { }
+    override func stopLoading() {
+        // TODO: Add stop loading here
+    }
 }
