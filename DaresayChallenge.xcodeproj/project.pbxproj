@@ -50,6 +50,8 @@
 		A88F8DDF286C8BAF001CC78B /* MoviesServiceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88F8DDE286C8BAF001CC78B /* MoviesServiceTest.swift */; };
 		A88F8DE1286C8CC1001CC78B /* movies.json in Resources */ = {isa = PBXBuildFile; fileRef = A88F8DE0286C8CC1001CC78B /* movies.json */; };
 		A88F8DE3286C8CDF001CC78B /* configs.json in Resources */ = {isa = PBXBuildFile; fileRef = A88F8DE2286C8CDF001CC78B /* configs.json */; };
+		A89FC2BF28CC9F3900171058 /* MovieCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89FC2BE28CC9F3900171058 /* MovieCellContentView.swift */; };
+		A89FC2C128CC9F5400171058 /* MovieCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89FC2C028CC9F5400171058 /* MovieCellContentConfiguration.swift */; };
 		A8D151E128C638B3008FFFEC /* MovieDataStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A8D151DF28C638B3008FFFEC /* MovieDataStore.xcdatamodeld */; };
 		A8D151E328C638E9008FFFEC /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D151E228C638E9008FFFEC /* CoreDataStore.swift */; };
 		A8D151E528C63E52008FFFEC /* CoreDataAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D151E428C63E52008FFFEC /* CoreDataAPI.swift */; };
@@ -135,6 +137,8 @@
 		A88F8DDE286C8BAF001CC78B /* MoviesServiceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesServiceTest.swift; sourceTree = "<group>"; };
 		A88F8DE0286C8CC1001CC78B /* movies.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = movies.json; sourceTree = "<group>"; };
 		A88F8DE2286C8CDF001CC78B /* configs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = configs.json; sourceTree = "<group>"; };
+		A89FC2BE28CC9F3900171058 /* MovieCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCellContentView.swift; sourceTree = "<group>"; };
+		A89FC2C028CC9F5400171058 /* MovieCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCellContentConfiguration.swift; sourceTree = "<group>"; };
 		A8D151E028C638B3008FFFEC /* MovieDataStore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MovieDataStore.xcdatamodel; sourceTree = "<group>"; };
 		A8D151E228C638E9008FFFEC /* CoreDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
 		A8D151E428C63E52008FFFEC /* CoreDataAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataAPI.swift; sourceTree = "<group>"; };
@@ -531,6 +535,8 @@
 			isa = PBXGroup;
 			children = (
 				A8E46573286B2CF600F51994 /* MovieTableViewCell.swift */,
+				A89FC2BE28CC9F3900171058 /* MovieCellContentView.swift */,
+				A89FC2C028CC9F5400171058 /* MovieCellContentConfiguration.swift */,
 			);
 			path = List;
 			sourceTree = "<group>";
@@ -800,6 +806,7 @@
 				A8E46577286B42FC00F51994 /* ImageURLBuilder.swift in Sources */,
 				A88EB63F2869A967009DBB12 /* UIViewController+Extensions.swift in Sources */,
 				A88EB64B2869AA68009DBB12 /* MoviesViewController.swift in Sources */,
+				A89FC2BF28CC9F3900171058 /* MovieCellContentView.swift in Sources */,
 				A8E46565286AE92600F51994 /* Configuration.swift in Sources */,
 				A8E46569286B1A5100F51994 /* MoviesViewModel.swift in Sources */,
 				A8D151E328C638E9008FFFEC /* CoreDataStore.swift in Sources */,
@@ -815,6 +822,7 @@
 				A88EB623286990EF009DBB12 /* ServerRequest.swift in Sources */,
 				A8E4656C286B1F9200F51994 /* UserDefaultsStorage.swift in Sources */,
 				A88EB627286990FE009DBB12 /* NetworkingError.swift in Sources */,
+				A89FC2C128CC9F5400171058 /* MovieCellContentConfiguration.swift in Sources */,
 				A88EB6332869A85D009DBB12 /* URLPath.swift in Sources */,
 				A8E46574286B2CF600F51994 /* MovieTableViewCell.swift in Sources */,
 				A88F8DCE286C7AFE001CC78B /* FavoriteMoviesViewController.swift in Sources */,
