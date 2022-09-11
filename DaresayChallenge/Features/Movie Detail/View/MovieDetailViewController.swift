@@ -8,7 +8,7 @@
 import UIKit
 
 protocol ReloadFavoritesDelegate: AnyObject {
-    func refresh()
+    func refresh(item: MoviesModel)
 }
 
 final class MovieDetailViewController: UIViewController {
@@ -113,7 +113,7 @@ final class MovieDetailViewController: UIViewController {
     private func favoriteButtonTapped() {
         isFavorite = !isFavorite
         viewModel.addToFavorites(isFavorite: isFavorite)
-        delegate?.refresh()
+        delegate?.refresh(item: viewModel.selectedMovie)
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension ServerModels {
     enum Movies {
@@ -48,6 +49,31 @@ final class MoviesModel: ServerModel {
         imageURL(posterPath, typeAndSize: .backDrop(.w780))
     }
     
+    var isAddedToFavorites: Bool {
+        if isFavorite {
+            return true
+        }
+        
+        return favoriteMovies.contains(where: { $0.id == movieID ?? 0 })
+    }
+    
+    public lazy var favoriteMovies: [Movie] = {
+        var favMovies: [Movie] = []
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+            return []
+        }
+        
+        guard let coreDataAPI = sceneDelegate.coreDataAPI else { return [] }
+        
+        do {
+            favMovies = try coreDataAPI.fetchAllObjects(entity: Movie.self)
+        } catch let error {
+            print(error)
+        }
+        
+        return favMovies
+    }()
+    
     enum CodingKeys: String, CodingKey {
         case adult
         case backdropPath
@@ -66,13 +92,6 @@ final class MoviesModel: ServerModel {
     // MARK: - Init
     init() { }
     
-    convenience init(title: String?, posterURL: URL?, description: String?) {
-        self.init()
-        self.title = title
-        self.posterPath = posterURL?.absoluteString
-        self.overview = description
-    }
-    
     // MARK: - Helpers
     private func imageURL(_ url: String?, typeAndSize: ImageTypes) -> URL? {
         guard let url = url else { return nil }
@@ -86,5 +105,11 @@ final class MoviesModel: ServerModel {
 extension MoviesModel: Equatable {
     static func == (lhs: MoviesModel, rhs: MoviesModel) -> Bool {
         return lhs.movieID == rhs.movieID
+    }
+}
+
+extension MoviesModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(movieID)
     }
 }

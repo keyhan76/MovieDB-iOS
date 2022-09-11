@@ -7,53 +7,53 @@
 
 import UIKit
 
-protocol TableViewCell: UITableViewCell {
-    func configureCell(with item: ListViewModelable, indexPath: Int)
+public protocol DiffableTableViewCell: UITableViewCell {
+    
+    associatedtype CellViewModel: Hashable
+    
+    func configureCellWith(_ item: CellViewModel)
 }
 
+enum Section: CaseIterable {
+    case main
+}
 
-final class TableViewDataSourceProvider<T: ListViewModelable, Cell: TableViewCell>: NSObject, UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
+final class TableViewDataSource<Cell: DiffableTableViewCell, T: ListViewModelable>: UITableViewDiffableDataSource<Section, Cell.CellViewModel>, UITableViewDataSourcePrefetching, UITableViewDelegate {
     
-    // MARK: - Variables
-    private var tableView: UITableView
-    private var viewModel: T
+    private let viewModel: T
     
     public var didSelectItem: ((_ indexPath: Int) -> Void)?
     
-    // Reuse identifier
-    private let cellID = String(describing: Cell.self)
+    var snapShot: NSDiffableDataSourceSnapshot<Section, Cell.CellViewModel>!
     
-    // MARK: - Init
-    init(tableView: UITableView, viewModel: T) {
-        self.tableView = tableView
+    init(_ tableView: UITableView, viewModel: T) {
+        
         self.viewModel = viewModel
-        super.init()
         
-        setupTableView()
-    }
-    
-    // MARK: - Public methods
-    public func append() {
-        guard viewModel.totalCount != viewModel.itemsCount else { return }
+        tableView.register(Cell.self, forCellReuseIdentifier: String(describing: Cell.self))
         
-        if viewModel.totalCount == 0 {
-            viewModel.totalCount = viewModel.itemsCount
-            tableView.reloadData()
-        } else {
-            let startIndex = viewModel.totalCount
-            let endIndex = viewModel.itemsCount
-            let indexPathsToAdd = (startIndex..<endIndex).map {IndexPath(row: $0, section: 0)} as [IndexPath]
-            viewModel.totalCount = viewModel.itemsCount
+        super.init(tableView: tableView) { tableView, indexPath, itemIdentifier in
+            let identifier = String(describing: Cell.self)
+            let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! Cell
             
-            self.tableView.performBatchUpdates({
-                self.tableView.insertRows(at: indexPathsToAdd, with: .none)
-            }, completion: nil)
+            cell.configureCellWith(itemIdentifier)
             
+            return cell
         }
     }
     
-    public func refresh() {
-        tableView.reloadData()
+    func append(new items: [Cell.CellViewModel]) {
+        snapShot = NSDiffableDataSourceSnapshot<Section, Cell.CellViewModel>()
+        
+        snapShot.appendSections([.main])
+        snapShot.appendItems(items, toSection: .main)
+        
+        apply(snapShot, animatingDifferences: false)
+    }
+    
+    func reload(items: [Cell.CellViewModel]) {
+        snapShot.reloadItems(items)
+        applySnapshotUsingReloadData(snapShot)
     }
     
     // MARK: - UITableView Delegate
@@ -63,51 +63,15 @@ final class TableViewDataSourceProvider<T: ListViewModelable, Cell: TableViewCel
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    // MARK: - UITableView DataSource
-    func numberOfSections(in tableView: UITableView) -> Int {
-        1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.itemsCount
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = generateCell(Cell.self, indexPath: indexPath)
-
-        cell.configureCell(with: viewModel, indexPath: indexPath.row)
-
-        return cell
-    }
-    
     // MARK: - UITableView DataSource Prefetching
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         if indexPaths.contains(where: viewModel.isLoadingCell) && !viewModel.isFinished {
             print("==========get new data======")
             Task {
-                await viewModel.prefetchData()
+                let movies = await viewModel.prefetchData() as! [Cell.CellViewModel]
                 
-                append()
+                append(new: movies)
             }
         }
-    }
-}
-
-// MARK: - Helpers
-private extension TableViewDataSourceProvider {
-    func generateCell<T: UITableViewCell>(_ cell: T.Type, indexPath: IndexPath) -> T {
-        let identifier = String(describing: T.self)
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? T else {
-            return T()
-        }
-        
-        return cell
-    }
-    
-    func setupTableView() {
-        tableView.register(Cell.self, forCellReuseIdentifier: cellID)
-        tableView.tableFooterView = UIView(frame: .zero)
-        tableView.estimatedRowHeight = 60
-        tableView.rowHeight = UITableView.automaticDimension
     }
 }

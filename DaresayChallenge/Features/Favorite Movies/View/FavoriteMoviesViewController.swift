@@ -11,10 +11,13 @@ final class FavoriteMoviesViewController: UIViewController {
 
     // MARK: - Variables
     private let viewModel: FavoriteMoviesViewModel
-    private var dataSourceProvider: TableViewDataSourceProvider<FavoriteMoviesViewModel, MovieTableViewCell>!
+    private var dataSourceProvider: TableViewDataSource<FavoriteMovieTableViewCell, FavoriteMoviesViewModel>!
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
+        tableView.estimatedRowHeight = 60
+        tableView.tableFooterView = UIView(frame: .zero)
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -51,10 +54,7 @@ private extension FavoriteMoviesViewController {
         view.backgroundColor = .systemBackground
         navigationItem.title = "Favorites"
         
-        dataSourceProvider = TableViewDataSourceProvider(tableView: tableView, viewModel: viewModel)
-        
-        tableView.delegate = dataSourceProvider
-        tableView.dataSource = dataSourceProvider
+        dataSourceProvider = TableViewDataSource(tableView, viewModel: viewModel)
         
         view.addSubview(tableView)
         
@@ -63,12 +63,7 @@ private extension FavoriteMoviesViewController {
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         
-        dataSourceProvider.append()
+        dataSourceProvider.append(new: viewModel.favoriteMovies)
     }
 }
 
-extension FavoriteMoviesViewController: ReloadFavoritesDelegate {
-    func refresh() {
-        dataSourceProvider.refresh()
-    }
-}

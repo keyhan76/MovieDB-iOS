@@ -7,10 +7,9 @@
 
 import UIKit
 
-struct MovieCellContentConfiguration<T: ListViewModelable>: UIContentConfiguration {
+struct MovieCellContentConfiguration<T: Hashable>: UIContentConfiguration {
     
-    let viewModel: T
-    let indexPath: Int
+    let model: T
     
     func makeContentView() -> UIView & UIContentView {
         MovieCellContentView(self)

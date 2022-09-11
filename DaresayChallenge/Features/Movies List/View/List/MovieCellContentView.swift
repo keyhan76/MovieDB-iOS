@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class MovieCellContentView: UIView, UIContentView {
+class MovieCellContentView: UIView, UIContentView {
     
     // MARK: - Variables
     var configuration: UIContentConfiguration {
@@ -16,7 +16,7 @@ final class MovieCellContentView: UIView, UIContentView {
         }
     }
     
-    private lazy var titleLabel: UILabel = {
+    public lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 2
         label.font = .boldSystemFont(ofSize: 16)
@@ -24,7 +24,7 @@ final class MovieCellContentView: UIView, UIContentView {
         return label
     }()
     
-    private lazy var descriptionLabel: UILabel = {
+    public lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 4
         label.textColor = .systemGray
@@ -33,7 +33,7 @@ final class MovieCellContentView: UIView, UIContentView {
         return label
     }()
     
-    private lazy var movieImageView: UIImageView = {
+    public lazy var movieImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.tintColor = .systemGray
         imageView.contentMode = .scaleAspectFit
@@ -42,7 +42,7 @@ final class MovieCellContentView: UIView, UIContentView {
         return imageView
     }()
     
-    private lazy var favoriteImageView: UIImageView = {
+    public lazy var favoriteImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.tintColor = .red
         imageView.contentMode = .scaleAspectFit
@@ -51,7 +51,7 @@ final class MovieCellContentView: UIView, UIContentView {
         return imageView
     }()
     
-    private lazy var placeHolderImage: UIImage = {
+    public lazy var placeHolderImage: UIImage = {
         UIImage(systemName: "film")!
     }()
     
@@ -66,6 +66,25 @@ final class MovieCellContentView: UIView, UIContentView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Configure
+    func configure(with configuration: UIContentConfiguration) {
+        guard let configuration = configuration as? MovieCellContentConfiguration<MoviesModel> else {
+            return
+        }
+        
+        titleLabel.text = configuration.model.title
+        descriptionLabel.text = configuration.model.overview
+        
+        let imageURL = configuration.model.posterURL
+        movieImageView.load(url: imageURL, placeholder: placeHolderImage)
+        
+        if configuration.model.isAddedToFavorites {
+            favoriteImageView.image = UIImage(systemName: "heart.fill")
+        } else {
+            favoriteImageView.image = UIImage(systemName: "heart")
+        }
     }
 }
 
@@ -94,23 +113,5 @@ extension MovieCellContentView {
         movieImageView.leftAnchor.constraint(equalTo: leftAnchor, constant: 8).isActive = true
         movieImageView.widthAnchor.constraint(equalToConstant: 90).isActive = true
         movieImageView.heightAnchor.constraint(equalToConstant: 90).isActive = true
-    }
-    
-    func configure(with configuration: UIContentConfiguration) {
-        guard let configuration = configuration as? MovieCellContentConfiguration<MoviesViewModel> else {
-            return
-        }
-        
-        titleLabel.text = configuration.viewModel.title(forItemAt: configuration.indexPath)
-        descriptionLabel.text = configuration.viewModel.description(forItemAt: configuration.indexPath)
-        
-        let imageURL = configuration.viewModel.imageURL(forItemAt: configuration.indexPath)
-        movieImageView.load(url: imageURL, placeholder: placeHolderImage)
-        
-        if configuration.viewModel.isFavorite(forItemAt: configuration.indexPath) {
-            favoriteImageView.image = UIImage(systemName: "heart.fill")
-        } else {
-            favoriteImageView.image = UIImage(systemName: "heart")
-        }
     }
 }

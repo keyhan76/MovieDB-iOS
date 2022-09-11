@@ -32,11 +32,9 @@ private extension MovieTableViewCell {
 }
 
 // MARK: - Configuration
-extension MovieTableViewCell: TableViewCell {
-    func configureCell(with item: ListViewModelable, indexPath: Int) {
-        guard let viewModel = item as? MoviesViewModel else { return }
-        
-        let config = MovieCellContentConfiguration(viewModel: viewModel, indexPath: indexPath)
+extension MovieTableViewCell: DiffableTableViewCell {
+    func configureCellWith(_ item: MoviesModel) {
+        let config = MovieCellContentConfiguration(model: item)
         contentConfiguration = config
     }
 }

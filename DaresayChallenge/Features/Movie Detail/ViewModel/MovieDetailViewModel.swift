@@ -48,7 +48,7 @@ final class MovieDetailViewModel: ObservableObject {
         
         selectedMovie.isFavorite = isFavorite
         
-        delegate?.refresh()
+        delegate?.refresh(item: selectedMovie)
         
         // If saved movie exists, remove it from database
         if let savedMovie = savedMovie {

@@ -9,12 +9,11 @@ import UIKit
 import SwiftUI
 
 protocol ListViewModelable {
-    var totalCount: Int { get set }
-    var itemsCount: Int { get }
+    associatedtype T: Hashable
     var isFinished: Bool { get set }
     
     func isLoadingCell(for indexPath: IndexPath) -> Bool
-    func prefetchData() async
+    func prefetchData() async -> [T]
 }
 
 class MoviesViewModel {
@@ -44,7 +43,6 @@ class MoviesViewModel {
     }()
     
     var isFinished = false
-    var totalCount: Int = 0
     var itemsCount: Int {
         return allMovies.count
     }
@@ -91,36 +89,9 @@ class MoviesViewModel {
         return allMovies
     }
     
-    public func title(forItemAt indexPath: Int) -> String? {
-        let movie = self.item(at: indexPath)
-        return movie.title
-    }
-    
-    public func description(forItemAt indexPath: Int) -> String? {
-        let movie = self.item(at: indexPath)
-        let description = movie.overview
-        return description
-    }
-    
     public func didSelect(itemAt indexPath: Int) -> MoviesModel {
         let movie = self.item(at: indexPath)
         return movie
-    }
-    
-    public func imageURL(forItemAt indexPath: Int) -> URL? {
-        let movie = self.item(at: indexPath)
-        let imageURL = movie.posterURL
-        return imageURL
-    }
-    
-    public func isFavorite(forItemAt indexPath: Int) -> Bool {
-        let movie = self.item(at: indexPath)
-        
-        if movie.isFavorite {
-            return true
-        }
-        
-        return favoriteMovies.contains(where: { $0.id == movie.movieID ?? 0 })
     }
     
     // MARK: - Helpers
@@ -150,7 +121,7 @@ extension MoviesViewModel: ListViewModelable {
         return indexPath.row == itemsCount - 1
     }
     
-    func prefetchData() async {
-        let _ = await getPopularMovies()
+    func prefetchData() async -> [MoviesModel] {
+        return await getPopularMovies()
     }
 }
