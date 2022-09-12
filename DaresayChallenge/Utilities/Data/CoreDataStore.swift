@@ -8,11 +8,20 @@
 import Foundation
 import CoreData
 
+protocol CoreDataStorable {
+    var mainContext: NSManagedObjectContext { get }
+    
+    func newDerivedContext() -> NSManagedObjectContext
+    func saveContext(_ context: NSManagedObjectContext)
+}
+
 enum StorageType {
     case persistent, inMemory
 }
 
 open class CoreDataStore {
+    
+    // MARK: - Variables
     public let persistentContainer: NSPersistentContainer
     
     public static let modelName = "MovieDataStore"
@@ -27,6 +36,7 @@ open class CoreDataStore {
         return persistentContainer.viewContext
     }()
     
+    // MARK: - Init
     init(_ storageType: StorageType = .persistent) {
         self.persistentContainer = NSPersistentContainer(name: CoreDataStore.modelName, managedObjectModel: CoreDataStore.model)
         
@@ -42,13 +52,16 @@ open class CoreDataStore {
             }
         })
     }
-    
-    public func newDerivedContext() -> NSManagedObjectContext {
+}
+
+// MARK: - CoreDataStorable
+extension CoreDataStore: CoreDataStorable {
+    func newDerivedContext() -> NSManagedObjectContext {
         let context = persistentContainer.newBackgroundContext()
         return context
     }
     
-    public func saveContext(_ context: NSManagedObjectContext) {
+    func saveContext(_ context: NSManagedObjectContext) {
         context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         context.perform {
             do {
