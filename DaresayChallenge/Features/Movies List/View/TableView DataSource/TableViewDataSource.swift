@@ -24,7 +24,7 @@ final class TableViewDataSource<Cell: DiffableTableViewCell, T: ListViewModelabl
     
     public var didSelectItem: ((_ indexPath: Int) -> Void)?
     
-    var snapShot: NSDiffableDataSourceSnapshot<Section, Cell.CellViewModel>!
+    private var snapShot: NSDiffableDataSourceSnapshot<Section, Cell.CellViewModel>!
     
     init(_ tableView: UITableView, viewModel: T) {
         

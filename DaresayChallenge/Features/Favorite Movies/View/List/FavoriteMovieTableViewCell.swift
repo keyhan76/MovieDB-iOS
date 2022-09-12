@@ -12,7 +12,6 @@ final class FavoriteMovieTableViewCell: UITableViewCell {
     // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
     }
     
     @available(*, unavailable)
@@ -29,6 +28,7 @@ extension FavoriteMovieTableViewCell: DiffableTableViewCell {
     }
 }
 
+// MARK: - FavoriteMovie Cell ContentView
 final class FavoriteMovieCellContentView: MovieCellContentView {
     override func configure(with configuration: UIContentConfiguration) {
         guard let configuration = configuration as? FavoriteMovieCellContentConfiguration<Movie> else {
@@ -49,6 +49,7 @@ final class FavoriteMovieCellContentView: MovieCellContentView {
     }
 }
 
+// MARK: - FavoriteMovie Cell Content Configuration
 struct FavoriteMovieCellContentConfiguration<T: Hashable>: UIContentConfiguration {
     
     let model: T

@@ -66,4 +66,3 @@ private extension FavoriteMoviesViewController {
         dataSourceProvider.append(new: viewModel.favoriteMovies)
     }
 }
-

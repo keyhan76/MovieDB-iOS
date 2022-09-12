@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SwiftUI
 
 protocol ListViewModelable {
     associatedtype T: Hashable
@@ -16,7 +15,7 @@ protocol ListViewModelable {
     func prefetchData() async -> [T]
 }
 
-class MoviesViewModel {
+final class MoviesViewModel {
     
     // MARK: - Variables
     private var moviesService: MoviesServiceProtocol
@@ -25,29 +24,12 @@ class MoviesViewModel {
     private var allMovies: [MoviesModel] = []
     private var configCache: ConfigurationModel?
     
-    public lazy var favoriteMovies: [Movie] = {
-        var favMovies: [Movie] = []
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
-            return []
-        }
-        
-        guard let coreDataAPI = sceneDelegate.coreDataAPI else { return [] }
-        
-        do {
-            favMovies = try coreDataAPI.fetchAllObjects(entity: Movie.self)
-        } catch let error {
-            print(error)
-        }
-        
-        return favMovies
-    }()
-    
-    var isFinished = false
-    var itemsCount: Int {
+    private var itemsCount: Int {
         return allMovies.count
     }
     
-    var isLoading = false
+    public var isFinished = false
+    public var isLoading = false
     
     // MARK: - Init
     init(moviesService: MoviesServiceProtocol) {
@@ -110,7 +92,7 @@ class MoviesViewModel {
         return configCache
     }
     
-    func item(at index: Int) -> MoviesModel {
+    private func item(at index: Int) -> MoviesModel {
         allMovies[index]
     }
 }

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 extension ServerModels {
     enum Movies {
@@ -54,25 +53,10 @@ final class MoviesModel: ServerModel {
             return true
         }
         
-        return favoriteMovies.contains(where: { $0.id == movieID ?? 0 })
+        let coreDataManager = CoreDataManager()
+        
+        return coreDataManager.favoriteMovies.contains(where: { $0.id == movieID ?? 0 })
     }
-    
-    public lazy var favoriteMovies: [Movie] = {
-        var favMovies: [Movie] = []
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
-            return []
-        }
-        
-        guard let coreDataAPI = sceneDelegate.coreDataAPI else { return [] }
-        
-        do {
-            favMovies = try coreDataAPI.fetchAllObjects(entity: Movie.self)
-        } catch let error {
-            print(error)
-        }
-        
-        return favMovies
-    }()
     
     enum CodingKeys: String, CodingKey {
         case adult

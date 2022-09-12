@@ -26,11 +26,11 @@ final class FavoriteMoviesViewModel {
         return controller
     }()
     
-    private let coreDataAPI: CoreDataAPI
-    
-    var favoriteMovies: [Movie] {
+    public var favoriteMovies: [Movie] {
         fetchedResultsController.fetchedObjects ?? []
     }
+    
+    private let coreDataAPI: CoreDataAPI
 
     // MARK: - Init
     init(coreDataAPI: CoreDataAPI) {
@@ -38,6 +38,7 @@ final class FavoriteMoviesViewModel {
     }
 }
 
+// MARK: - ListViewModelable
 extension FavoriteMoviesViewModel: ListViewModelable {
     func prefetchData() async -> [Movie] { [] }
     
