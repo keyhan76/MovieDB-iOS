@@ -16,7 +16,7 @@ class MovieCellContentView: UIView, UIContentView {
         }
     }
     
-    public lazy var titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 2
         label.font = .boldSystemFont(ofSize: 16)
@@ -24,7 +24,7 @@ class MovieCellContentView: UIView, UIContentView {
         return label
     }()
     
-    public lazy var descriptionLabel: UILabel = {
+    private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 4
         label.textColor = .systemGray
@@ -33,7 +33,7 @@ class MovieCellContentView: UIView, UIContentView {
         return label
     }()
     
-    public lazy var movieImageView: UIImageView = {
+    private lazy var movieImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.tintColor = .systemGray
         imageView.contentMode = .scaleAspectFit
@@ -42,7 +42,7 @@ class MovieCellContentView: UIView, UIContentView {
         return imageView
     }()
     
-    public lazy var favoriteImageView: UIImageView = {
+    private lazy var favoriteImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.tintColor = .red
         imageView.contentMode = .scaleAspectFit
@@ -51,7 +51,7 @@ class MovieCellContentView: UIView, UIContentView {
         return imageView
     }()
     
-    public lazy var placeHolderImage: UIImage = {
+    private lazy var placeHolderImage: UIImage = {
         UIImage(systemName: "film")!
     }()
     
@@ -69,18 +69,23 @@ class MovieCellContentView: UIView, UIContentView {
     }
     
     // MARK: - Configure
-    func configure(with configuration: UIContentConfiguration) {
+    public func configure(with configuration: UIContentConfiguration) {
         guard let configuration = configuration as? MovieCellContentConfiguration<MoviesModel> else {
             return
         }
         
-        titleLabel.text = configuration.model.title
-        descriptionLabel.text = configuration.model.overview
+        let model = configuration.model
         
-        let imageURL = configuration.model.posterURL
+        updateUI(title: model.title, description: model.overview, imageURL: model.posterURL, isFavorite: model.isAddedToFavorites)
+    }
+    
+    public func updateUI(title: String?, description: String?, imageURL: URL?, isFavorite: Bool) {
+        titleLabel.text = title
+        descriptionLabel.text = description
+        
         movieImageView.load(url: imageURL, placeholder: placeHolderImage)
         
-        if configuration.model.isAddedToFavorites {
+        if isFavorite{
             favoriteImageView.image = UIImage(systemName: "heart.fill")
         } else {
             favoriteImageView.image = UIImage(systemName: "heart")
@@ -88,6 +93,7 @@ class MovieCellContentView: UIView, UIContentView {
     }
 }
 
+// MARK: - Helpers
 extension MovieCellContentView {
     func setupUI() {
         let stackView = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel])

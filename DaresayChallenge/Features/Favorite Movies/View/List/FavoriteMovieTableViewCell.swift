@@ -35,17 +35,9 @@ final class FavoriteMovieCellContentView: MovieCellContentView {
             return
         }
         
-        titleLabel.text = configuration.model.title
-        descriptionLabel.text = configuration.model.movieDescription
+        let model = configuration.model
         
-        let imageURL = configuration.model.imageURL
-        movieImageView.load(url: imageURL, placeholder: placeHolderImage)
-        
-        if configuration.model.isFavorite {
-            favoriteImageView.image = UIImage(systemName: "heart.fill")
-        } else {
-            favoriteImageView.image = UIImage(systemName: "heart")
-        }
+        updateUI(title: model.title, description: model.movieDescription, imageURL: model.imageURL, isFavorite: model.isFavorite)
     }
 }
 
@@ -62,4 +54,3 @@ struct FavoriteMovieCellContentConfiguration<T: Hashable>: UIContentConfiguratio
         return self
     }
 }
-
