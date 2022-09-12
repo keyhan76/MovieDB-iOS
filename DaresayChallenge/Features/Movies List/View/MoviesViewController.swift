@@ -14,12 +14,15 @@ final class MoviesViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
+        tableView.estimatedRowHeight = 60
+        tableView.tableFooterView = UIView(frame: .zero)
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.accessibilityIdentifier = AccessibilityIdentifiers.moviesTableView.rawValue
         return tableView
     }()
     
-    private var dataSourceProvider: TableViewDataSourceProvider<MoviesViewModel, MovieTableViewCell>!
+    private var dataSource: TableViewDataSource<MovieTableViewCell, MoviesViewModel>!
     
     public var didSendEventClosure: ((MoviesViewController.Event) -> Void)?
     
@@ -66,9 +69,9 @@ private extension MoviesViewController {
         view.animateActivityIndicator()
         
         Task {
-            let _ = await viewModel.populate()
+            let movies = await viewModel.populate()
             setupTableView()
-            dataSourceProvider.append()
+            dataSource.append(new: movies)
             
             if !viewModel.isLoading {
                 view.removeActivityIndicator()
@@ -77,11 +80,10 @@ private extension MoviesViewController {
     }
     
     func setupTableView() {
-        dataSourceProvider = TableViewDataSourceProvider(tableView: tableView, viewModel: viewModel)
+        dataSource = TableViewDataSource(tableView, viewModel: viewModel)
         
-        tableView.delegate = dataSourceProvider
-        tableView.dataSource = dataSourceProvider
-        tableView.prefetchDataSource = dataSourceProvider
+        tableView.delegate = dataSource
+        tableView.prefetchDataSource = dataSource
         
         view.addSubview(tableView)
         
@@ -94,11 +96,11 @@ private extension MoviesViewController {
     }
     
     func setupTableViewBindings() {
-        dataSourceProvider.didSelectItem = { [weak self] indexPath in
+        dataSource.didSelectItem = { [weak self] indexPath in
             guard let self = self else { return }
-            
+
             let item = self.viewModel.didSelect(itemAt: indexPath)
-            
+
             self.didSendEventClosure?(.movieDetail(item))
         }
     }
@@ -114,7 +116,7 @@ extension MoviesViewController {
 
 // MARK: - ReloadFavorites Delegate
 extension MoviesViewController: ReloadFavoritesDelegate {
-    func refresh() {
-        dataSourceProvider.refresh()
+    func refresh(item: MoviesModel) {
+        dataSource.reload(items: [item])
     }
 }

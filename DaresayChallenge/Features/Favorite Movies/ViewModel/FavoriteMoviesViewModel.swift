@@ -8,9 +8,11 @@
 import Foundation
 import CoreData
 
-final class FavoriteMoviesViewModel: MoviesViewModel {
+final class FavoriteMoviesViewModel {
     
     // MARK: - Variables
+    
+    var isFinished: Bool = true
     
     public lazy var fetchedResultsController: NSFetchedResultsController<Movie> = {
         var controller: NSFetchedResultsController<Movie>!
@@ -24,29 +26,21 @@ final class FavoriteMoviesViewModel: MoviesViewModel {
         return controller
     }()
     
-    private let coreDataAPI: CoreDataAPI
-    
-    override var itemsCount: Int {
-        fetchedResultsController.fetchedObjects?.count ?? 0
+    public var favoriteMovies: [Movie] {
+        fetchedResultsController.fetchedObjects ?? []
     }
+    
+    private let coreDataAPI: CoreDataAPI
 
     // MARK: - Init
     init(coreDataAPI: CoreDataAPI) {
         self.coreDataAPI = coreDataAPI
-        super.init(moviesService: MoviesService.shared)
     }
+}
+
+// MARK: - ListViewModelable
+extension FavoriteMoviesViewModel: ListViewModelable {
+    func prefetchData() async -> [Movie] { [] }
     
-    // MARK: - Helpers
-    override func item(at index: Int) -> MoviesModel {
-        let indexPath = IndexPath(row: index, section: 0)
-        let movie = fetchedResultsController.object(at: indexPath)
-        
-        let movieModel = MoviesModel(title: movie.title, posterURL: movie.imageURL, description: movie.movieDescription)
-        
-        return movieModel
-    }
-    
-    override func isFavorite(forItemAt indexPath: Int) -> Bool {
-        fetchedResultsController.fetchedObjects?[indexPath].isFavorite ?? false
-    }
+    func isLoadingCell(for indexPath: IndexPath) -> Bool { false }
 }
