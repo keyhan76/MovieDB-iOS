@@ -14,8 +14,8 @@ class MoviesServiceTest: XCTestCase {
     var moviesJSON: Data?
     var configsJSON: Data?
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         
         let bundle = Bundle(for: type(of: self))
         do {
@@ -33,82 +33,68 @@ class MoviesServiceTest: XCTestCase {
         }
     }
     
-    override func tearDown() {
+    override func tearDown() async throws {
         sut = nil
         moviesJSON = nil
         configsJSON = nil
-        super.tearDown()
+        try await super.tearDown()
     }
     
-    func testGetMovies() {
-        var url = RequestURL(baseURLString: "")
+    func testGetMovies() async throws {
+        var url = RequestURL()
         url.appendPathComponents([.version, .movie, .popular])
         
-        URLProtocolMock.testURLs = [url.url: moviesJSON!]
+        MockURLProtocol.error = nil
+        MockURLProtocol.requestHandler = { _ in
+            let response = HTTPURLResponse(url: url.url!,
+                                           statusCode: 200,
+                                           httpVersion: nil,
+                                           headerFields: ["Content-Type": "application/json"])!
+            return (response, self.moviesJSON!)
+        }
         
         let session = createURLSession()
         
-        let networkMock = NetworkingMock(session: session, validResponseCodes: [200], dispatchQueue: .main)
+        let networkMock = NetworkingMock(session: session, validResponseCodes: [200])
         
-        sut = MoviesService(serverManager: networkMock)
-        
-        let expectation = XCTestExpectation(description: "Async movies test")
-        var movies: [MoviesModel]?
-        
+        sut = MoviesService(serverManager: networkMock, coreDataAPI: MockData.coreDataAPI)
+
         let httpRequest = getMovies(url: url, page: 1)
         
-        sut?.getMovies(httpRequest: httpRequest, completionHandler: { result in
-            
-            defer {
-                expectation.fulfill()
-            }
-            
-            switch result {
-            case .success(let response):
-                movies = response.results
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
-            }
-        })
+        let result = try await sut?.getMovies(httpRequest: httpRequest, managedContext: MockData.coreDataAPI.importContext)
         
-        wait(for: [expectation], timeout: 5)
-        XCTAssertTrue(!movies!.isEmpty)
+        let movies = try XCTUnwrap(result?.results)
+        
+        XCTAssert(!movies.isEmpty)
     }
     
-    func testGetConfigs() {
-        var url = RequestURL(baseURLString: "")
+    func testGetConfigs() async throws {
+        var url = RequestURL()
         url.appendPathComponents([.version, .config])
         
-        URLProtocolMock.testURLs = [url.url: configsJSON!]
+        MockURLProtocol.error = nil
+        MockURLProtocol.requestHandler = { _ in
+            let response = HTTPURLResponse(url: url.url!,
+                                           statusCode: 200,
+                                           httpVersion: nil,
+                                           headerFields: ["Content-Type": "application/json"])!
+            return (response, self.configsJSON!)
+        }
         
         let session = createURLSession()
         
-        let networkMock = NetworkingMock(session: session, validResponseCodes: [200], dispatchQueue: .main)
+        let networkMock = NetworkingMock(session: session, validResponseCodes: [200])
         
-        sut = MoviesService(serverManager: networkMock)
-        
-        let expectation = XCTestExpectation(description: "Async configs test")
-        var configs: ConfigurationModel?
+        sut = MoviesService(serverManager: networkMock, coreDataAPI: MockData.coreDataAPI)
         
         let httpRequest = getConfigs(url: url)
         
-        sut?.getConfigs(httpRequest: httpRequest, completionHandler: { result in
-            
-            defer {
-                expectation.fulfill()
-            }
-            
-            switch result {
-            case .success(let response):
-                configs = response
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
-            }
-        })
+        let result = try await sut?.getConfigs(httpRequest: httpRequest)
         
-        wait(for: [expectation], timeout: 5)
-        XCTAssertTrue(!configs!.changeKeys!.isEmpty)
-        XCTAssertTrue(configs!.images != nil)
+        let configs = try XCTUnwrap(result)
+        
+        XCTAssertTrue(!configs.changeKeys!.isEmpty)
+        XCTAssertTrue(configs.images != nil)
     }
 }
 
@@ -116,7 +102,7 @@ class MoviesServiceTest: XCTestCase {
 extension MoviesServiceTest {
     func createURLSession() -> URLSession {
         let config = URLSessionConfiguration.ephemeral
-        config.protocolClasses = [URLProtocolMock.self]
+        config.protocolClasses = [MockURLProtocol.self]
         
         let session = URLSession(configuration: config)
         

@@ -6,25 +6,54 @@
 //
 
 import Foundation
+import CoreData
+import UIKit
 
-final class FavoriteMoviesViewModel: MoviesViewModel {
+final class FavoriteMoviesViewModel {
     
     // MARK: - Variables
+    public weak var fetchedResultsControllerDelegate: NSFetchedResultsControllerDelegate?
     
-    override var itemsCount: Int {
-        favoriteMovies.count
-    }
+    public lazy var fetchedResultsController: NSFetchedResultsController<Movie> = {
+        let isFavorite = NSNumber(booleanLiteral: true)
+        let predicate = NSPredicate(format: "isFavorite == %@", isFavorite)
+        return favoriteMoviesService.coreDataAPI.createFetchResultsController(entity: Movie.self, predicate: predicate, delegate: fetchedResultsControllerDelegate)
+    }()
     
-    public var favoriteMovies: [MoviesModel]
-    
+    private let favoriteMoviesService: FavoriteMoviesServiceProtocol
+
     // MARK: - Init
-    init(favoriteMovies: [MoviesModel] = UserDefaultsData.favoriteList) {
-        self.favoriteMovies = favoriteMovies
-        super.init(moviesService: MoviesService.shared)
+    init(favoriteMoviesService: FavoriteMoviesServiceProtocol) {
+        self.favoriteMoviesService = favoriteMoviesService
     }
     
-    // MARK: - Helpers
-    override func item(at index: Int) -> MoviesModel {
-        favoriteMovies[index]
+    // MARK: - Public methods
+    func createDiffableDataSource(for tableView: UITableView) -> UITableViewDiffableDataSource<Section, NSManagedObjectID> {
+        
+        let cellIdentifier = String(describing: MovieTableViewCell.self)
+        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+        
+        let diffableDataSource = UITableViewDiffableDataSource<Section, NSManagedObjectID>(tableView: tableView) { [weak self] tableView, indexPath, objectID in
+            
+            guard let self = self else { fatalError() }
+            
+            let movieObject = self.favoriteMoviesService.getMovie(with: objectID)
+            
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? MovieTableViewCell else {
+                return UITableViewCell()
+            }
+            
+            if let movie = movieObject {
+                cell.configureCellWith(movie)
+            }
+            
+            return cell
+        }
+        
+        return diffableDataSource
+    }
+    
+    func performFetch() {
+        favoriteMoviesService.performFetch(fetchedResultsController: fetchedResultsController)
     }
 }

@@ -9,12 +9,11 @@ import Foundation
 
 // Using Decorator pattern for Service and ViewModel
 
-typealias MoviesCompletionHandler = (Result<ServerModels.Movies.Response, Error>) -> Void
-typealias ConfigCompletionHandler = (Result<ServerModels.Configuration.Response, Error>) -> Void
-
 protocol MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest, completionHandler: @escaping MoviesCompletionHandler)
-    func getConfigs(httpRequest: HTTPRequest, completionHandler: @escaping ConfigCompletionHandler)
+    var coreDataAPI: CoreDataAPI { get }
+    
+    func getMovies(httpRequest: HTTPRequest, managedContext: ManagedObjectContext) async throws -> ServerModels.Movies.Response
+    func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response
 }
 
 // MARK: - Server Request
@@ -44,38 +43,25 @@ extension ServerRequest {
 // MARK: - Movies Service
 final class MoviesService {
     private let serverManager: ServerProtocol
-    
-    public static let shared: MoviesServiceProtocol = MoviesService(serverManager: MovieServer.shared)
+    let coreDataAPI: CoreDataAPI
     
     // MARK: - Init
-    init(serverManager: ServerProtocol) {
+    init(serverManager: ServerProtocol, coreDataAPI: CoreDataAPI) {
         self.serverManager = serverManager
+        self.coreDataAPI = coreDataAPI
     }
 }
 
 // MARK: - MoviesService Protocol
 extension MoviesService: MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest, completionHandler: @escaping MoviesCompletionHandler) {
-        serverManager.perform(request: httpRequest)
+    func getMovies(httpRequest: HTTPRequest, managedContext: ManagedObjectContext) async throws -> ServerModels.Movies.Response {
+        let result: ServerData<ServerModels.Movies.Response> = try await serverManager.perform(request: httpRequest, managedObjectContext: managedContext)
         
-            .done { (result: ServerData<ServerModels.Movies.Response>) in
-                completionHandler(.success(result.model))
-            }
-        
-            .catch { error in
-                completionHandler(.failure(error))
-            }
+        return result.model
     }
     
-    func getConfigs(httpRequest: HTTPRequest, completionHandler: @escaping ConfigCompletionHandler) {
-        serverManager.perform(request: httpRequest)
-        
-            .done { (result: ServerData<ServerModels.Configuration.Response>) in
-                completionHandler(.success(result.model))
-            }
-        
-            .catch { error in
-                completionHandler(.failure(error))
-            }
+    func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response {
+        let configs: ServerData<ServerModels.Configuration.Response> = try await serverManager.perform(request: httpRequest)
+        return configs.model
     }
 }

@@ -16,49 +16,21 @@ class MoviesListUITest: XCTestCase {
         
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["enable-testing"]
+        app.launchArguments = ["UI_TESTING"]
         app.launch()
     }
     
-    func testTableViewExists() {
+    func testUIElementsExists() {
         let tableView = findElement(in: app.tables, with: .moviesTableView)
-        
-        XCTAssert(tableView.waitForExistence(timeout: 2))
-    }
-    
-    func testTableViewCellExists() {
         let tableViewCell = findElement(in: app.cells, with: .moviesTableViewCell)
+        let movieTitleLabel = findElement(in: app.staticTexts, with: .movieTitleLabel)
+        let movieDescriptionLabel = findElement(in: app.staticTexts, with: .movieDescriptionLabel)
+        let movieImageView = findElement(in: app.images, with: .movieImageView)
         
-        XCTAssert(tableViewCell.waitForExistence(timeout: 2))
-    }
-    
-    func testTitleLabelExists() {
-        let label = findElement(in: app.staticTexts, with: .movieTitleLabel)
-        
-        XCTAssert(label.waitForExistence(timeout: 2))
-    }
-    
-    func testDescriptionLabelExists() {
-        let label = findElement(in: app.staticTexts, with: .movieDescriptionLabel)
-        
-        XCTAssert(label.waitForExistence(timeout: 2))
-    }
-    
-    func testImageViewExists() {
-        let imageView = findElement(in: app.images, with: .movieImageView)
-        
-        XCTAssert(imageView.waitForExistence(timeout: 2))
-    }
-    
-    func testFavoriteImageViewExists() {
-        let imageView = findElement(in: app.images, with: .movieFavoriteImageView)
-        
-        XCTAssert(imageView.waitForExistence(timeout: 2))
-    }
-    
-    func testBarButtonItemExists() {
-        let button = findElement(in: app.buttons, with: .favoriteBarButton)
-        
-        XCTAssert(button.waitForExistence(timeout: 2))
+        XCTAssert(tableView.exists)
+        XCTAssert(tableViewCell.exists)
+        XCTAssert(movieTitleLabel.exists)
+        XCTAssert(movieDescriptionLabel.exists)
+        XCTAssert(movieImageView.exists)
     }
 }

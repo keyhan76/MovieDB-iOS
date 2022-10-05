@@ -11,70 +11,31 @@ import XCTest
 class MoviesViewModelTest: XCTestCase {
 
     var sut: MoviesViewModel?
-    var movies: [MoviesModel]?
-    var getMoviesExpectation: XCTestExpectation!
-    var populateExpectation: XCTestExpectation!
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await  super.setUp()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         sut = nil
-        movies = nil
-        getMoviesExpectation = nil
-        populateExpectation = nil
-        super.tearDown()
+        try await  super.tearDown()
     }
     
-    func testGetMovies() {
-        sut = MoviesViewModel(moviesService: MoviesService.shared)
-        sut?.delegate = self
+    func testGetMovies() async {
+        let moviesService = MoviesService(serverManager: MovieServer.shared, coreDataAPI: MockData.coreDataAPI)
+        sut = MoviesViewModel(moviesService: moviesService)
         
-        getMoviesExpectation = XCTestExpectation(description: "Async movies test")
+        let movies = await sut?.getPopularMovies()
         
-        sut?.getPopularMovies()
+        XCTAssertNotNil(movies)
+    }
+
+    func testPopulate() async {
+        let moviesService = MoviesService(serverManager: MovieServer.shared, coreDataAPI: MockData.coreDataAPI)
+        sut = MoviesViewModel(moviesService: moviesService)
         
-        wait(for: [getMoviesExpectation], timeout: 5)
-        XCTAssertNotNil(self.movies)
-    }
-    
-    func testPopulate() {
-        sut = MoviesViewModel(moviesService: MoviesService.shared)
-        sut?.delegate = self
-
-        populateExpectation = XCTestExpectation(description: "Async populate test")
-
-        sut?.populate()
-
-        wait(for: [populateExpectation], timeout: 5)
-        XCTAssertNotNil(self.movies)
-    }
-}
-
-// MARK: - MoviesViewModel Delegate
-extension MoviesViewModelTest: MoviesViewModelDelegate {
-    func populate(displayState: DisplayState<[MoviesModel]>) {
-        switch displayState {
-        case .loading:
-            break
-        case .success(let movies):
-            self.movies = movies
-            populateExpectation.fulfill()
-        case .failure(let error):
-            XCTFail(error)
-        }
-    }
-    
-    func displayMovies(displayState: DisplayState<[MoviesModel]>) {
-        switch displayState {
-        case .loading:
-            break
-        case .success(let movies):
-            self.movies = movies
-            getMoviesExpectation.fulfill()
-        case .failure(let error):
-            XCTFail(error)
-        }
+        
+        let movies = await sut?.populate()
+        XCTAssertNotNil(movies)
     }
 }

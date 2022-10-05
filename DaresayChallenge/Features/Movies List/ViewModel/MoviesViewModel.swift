@@ -5,38 +5,31 @@
 //  Created by Keihan Kamangar on 2022-06-28.
 //
 
-import Foundation
+import UIKit
 
 protocol ListViewModelable {
-    var totalCount: Int { get set }
-    var itemsCount: Int { get }
+    associatedtype T: Hashable
     var isFinished: Bool { get set }
     
     func isLoadingCell(for indexPath: IndexPath) -> Bool
-    func prefetchData()
+    func prefetchData() async -> [T]
 }
 
-protocol MoviesViewModelDelegate: AnyObject {
-    func populate(displayState: DisplayState<[MoviesModel]>)
-    func displayMovies(displayState: DisplayState<[MoviesModel]>)
-}
-
-class MoviesViewModel {
+final class MoviesViewModel {
     
     // MARK: - Variables
     private var moviesService: MoviesServiceProtocol
     
-    public weak var delegate: MoviesViewModelDelegate?
-    
     private var currentPage: UInt = 1
-    private var allMovies: [MoviesModel] = []
+    private var allMovies: [Movie] = []
     private var configCache: ConfigurationModel?
     
-    var isFinished = false
-    var totalCount: Int = 0
-    var itemsCount: Int {
+    private var itemsCount: Int {
         return allMovies.count
     }
+    
+    public var isFinished = false
+    public var isLoading = false
     
     // MARK: - Init
     init(moviesService: MoviesServiceProtocol) {
@@ -44,114 +37,62 @@ class MoviesViewModel {
     }
     
     // MARK: - Public methods
-    public func populate() {
+    @MainActor public func populate() async -> [Movie] {
+        isLoading = true
         
-        let dispatchGroup = DispatchGroup()
+        async let movies = getPopularMovies()
+        async let configs = getConfigs()
         
-        delegate?.populate(displayState: .loading)
+        let _ = await (movies, configs)
         
-        dispatchGroup.enter()
-        getPopularMovies(dispatchGroup: dispatchGroup)
-        
-        dispatchGroup.enter()
-        getConfigs(dispatchGroup: dispatchGroup)
-        
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            guard let self = self else { return }
-            
-            if let _ = self.configCache, !self.allMovies.isEmpty {
-                self.delegate?.populate(displayState: .success(self.allMovies))
-            } else {
-                self.delegate?.populate(displayState: .failure("Couldn't fetch data."))
-            }
-        }
+        isLoading = false
+        return allMovies
     }
     
-    public func getPopularMovies(dispatchGroup: DispatchGroup? = nil) {
-        
+    @MainActor public func getPopularMovies() async -> [Movie] {
         let httpRequest = ServerRequest.Movies.getMovies(page: currentPage)
-        moviesService.getMovies(httpRequest: httpRequest) { [weak self]  result in
-            defer {
-                if let dispatchGroup = dispatchGroup {
-                    dispatchGroup.leave()
-                }
-            }
+        
+        do {
+            let results = try await moviesService.getMovies(httpRequest: httpRequest, managedContext: moviesService.coreDataAPI.importContext)
             
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let response):
-                guard let movies = response.results else { return }
-                
+            if let movies = results.results {
                 if movies.isEmpty {
                     self.isFinished = true
                 }
                 
                 self.allMovies.append(contentsOf: movies)
                 
-                // This delegate should only be called when
-                // aren't using a dispatchGroup
-                if dispatchGroup == nil {
-                    self.delegate?.displayMovies(displayState: .success(self.allMovies))
-                }
-                
                 self.currentPage += 1
-                
-            case .failure(let error):
-                print(error)
             }
+        } catch {
+            print(error)
         }
+        
+        return allMovies
     }
     
-    public func title(forItemAt indexPath: Int) -> String? {
-        let movie = self.item(at: indexPath)
-        return movie.title
-    }
-    
-    public func description(forItemAt indexPath: Int) -> String? {
-        let movie = self.item(at: indexPath)
-        let description = movie.overview
-        return description
-    }
-    
-    public func didSelect(itemAt indexPath: Int) -> MoviesModel {
+    public func didSelect(itemAt indexPath: Int) -> Movie {
         let movie = self.item(at: indexPath)
         return movie
     }
     
-    public func imageURL(forItemAt indexPath: Int) -> URL? {
-        let movie = self.item(at: indexPath)
-        let imageURL = movie.posterURL
-        return imageURL
-    }
-    
-    public func isFavorite(forItemAt indexPath: Int) -> Bool {
-        let favoriteMovies = UserDefaultsData.favoriteList
-        let movie = self.item(at: indexPath)
-        
-        return favoriteMovies.contains(where: { $0.movieID == movie.movieID})
-    }
-    
     // MARK: - Helpers
-    private func getConfigs(dispatchGroup: DispatchGroup? = nil) {
-        
+    @discardableResult
+    private func getConfigs() async -> ConfigurationModel? {
         let httpRequest = ServerRequest.Configuration.getConfigs()
-        moviesService.getConfigs(httpRequest: httpRequest) { [weak self] result in
-            defer { dispatchGroup?.leave() }
-            
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let response):
-                self.configCache = response
-                UserDefaultsData.configModel = response
-            case .failure(let error):
-                print(error)
-            }
+        
+        do {
+            let results = try await moviesService.getConfigs(httpRequest: httpRequest)
+            self.configCache = results
+            UserDefaultsData.configModel = results
+        } catch {
+            print(error)
         }
+        
+        return configCache
     }
     
-    func item(at index: Int) -> MoviesModel {
+    private func item(at index: Int) -> Movie {
         allMovies[index]
     }
 }
@@ -162,7 +103,7 @@ extension MoviesViewModel: ListViewModelable {
         return indexPath.row == itemsCount - 1
     }
     
-    func prefetchData() {
-        getPopularMovies()
+    func prefetchData() async -> [Movie] {
+        return await getPopularMovies()
     }
 }

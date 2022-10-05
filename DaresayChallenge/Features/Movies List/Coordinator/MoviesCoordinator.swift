@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol MoviesCoordinatorProtocol: Coordinator {
     func showMoviesViewController(animated: Bool)
+    func showMovieDetailViewController(with movie: Movie, animated: Bool)
 }
 
 final class MoviesCoordinator: MoviesCoordinatorProtocol {
@@ -23,6 +25,18 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     
     var type: CoordinatorType { .movies }
     
+    var coreDataAPI: CoreDataAPI {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+            fatalError("Couldn't find scene")
+        }
+        
+        guard let coreDataAPI = sceneDelegate.coreDataAPI else {
+            fatalError("Couldn't create coreDataAPI")
+        }
+        
+        return coreDataAPI
+    }
+    
     required init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
@@ -36,34 +50,32 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     }
     
     func showMoviesViewController(animated: Bool = true) {
-        let moviesVC = MoviesViewController()
+        
+        let service = MoviesService(serverManager: MovieServer.shared, coreDataAPI: coreDataAPI)
+        let viewModel = MoviesViewModel(moviesService: service)
+        
+        let moviesVC = MoviesViewController(viewModel: viewModel)
         
         moviesVC.didSendEventClosure = { [weak self] event in
             guard let self = self else { return }
             
             switch event {
             case .movieDetail(let selectedMovie):
-                self.showMovieDetailViewController(viewController: moviesVC, with: selectedMovie)
-            case .favorites:
-                self.showFavoriteMoviesViewController()
+                self.showMovieDetailViewController(with: selectedMovie)
             }
         }
         
         navigationController.pushViewController(moviesVC, animated: animated)
     }
     
-    func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
-        let movieDetailVC = MovieDetailViewController(selectedMovie: movie)
+    func showMovieDetailViewController(with movie: Movie, animated: Bool = true) {
         
-        // Set delegate
-        movieDetailVC.delegate = viewController
+        let movieDetailService = MovieDetailService(coreDataAPI: coreDataAPI)
+        let viewModel = MovieDetailViewModel(movieDetailService: movieDetailService, selectedMovie: movie)
+
+        let movieDetailView = UIHostingController(rootView: MovieDetailView(viewModel: viewModel))
+        movieDetailView.hidesBottomBarWhenPushed = true
         
-        navigationController.pushViewController(movieDetailVC, animated: animated)
-    }
-    
-    func showFavoriteMoviesViewController(animated: Bool = true) {
-        let favoritesVC = FavoriteMoviesViewController()
-        
-        navigationController.pushViewController(favoritesVC, animated: animated)
+        navigationController.pushViewController(movieDetailView, animated: animated)
     }
 }

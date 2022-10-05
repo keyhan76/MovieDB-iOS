@@ -10,25 +10,38 @@ import UIKit
 final class MoviesViewController: UIViewController {
 
     // MARK: - Variables
-    private let viewModel: MoviesViewModel = MoviesViewModel(moviesService: MoviesService.shared)
+    private let viewModel: MoviesViewModel
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
+        tableView.estimatedRowHeight = 60
+        tableView.tableFooterView = UIView(frame: .zero)
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.accessibilityIdentifier = AccessibilityIdentifiers.moviesTableView.rawValue
         return tableView
     }()
     
-    private var dataSourceProvider: TableViewDataSourceProvider<MoviesViewModel, MovieTableViewCell>!
+    private var dataSource: TableViewDataSource<MovieTableViewCell, MoviesViewModel>!
     
     public var didSendEventClosure: ((MoviesViewController.Event) -> Void)?
+    
+    // MARK: - Init
+    init(viewModel: MoviesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupUI()
-        setupBindings()
         
         populate()
     }
@@ -39,6 +52,12 @@ final class MoviesViewController: UIViewController {
         navigationController?.setNavigationBarHidden(false, animated: true)
         navigationController?.navigationBar.tintColor = .systemBlue
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationController?.navigationBar.tintColor = .white
+    }
 }
 
 // MARK: - Helpers
@@ -47,30 +66,27 @@ private extension MoviesViewController {
         view.backgroundColor = .systemBackground
         
         navigationItem.title = "MovieDB"
-        
-        let rightBarButton = UIBarButtonItem(title: "Favorites", primaryAction: UIAction(handler: { [weak self] _ in
-            guard let self = self else { return }
-            self.didSendEventClosure?(.favorites)
-        }))
-        
-        navigationItem.rightBarButtonItem = rightBarButton
-        rightBarButton.accessibilityIdentifier = AccessibilityIdentifiers.favoriteBarButton.rawValue
     }
     
     func populate() {
-        viewModel.populate()
-    }
-    
-    func setupBindings() {
-        viewModel.delegate = self
+        view.animateActivityIndicator()
+        
+        Task {
+            let movies = await viewModel.populate()
+            setupTableView()
+            dataSource.append(new: movies)
+            
+            if !viewModel.isLoading {
+                view.removeActivityIndicator()
+            }
+        }
     }
     
     func setupTableView() {
-        dataSourceProvider = TableViewDataSourceProvider(tableView: tableView, viewModel: viewModel)
+        dataSource = TableViewDataSource(tableView, viewModel: viewModel)
         
-        tableView.delegate = dataSourceProvider
-        tableView.dataSource = dataSourceProvider
-        tableView.prefetchDataSource = dataSourceProvider
+        tableView.delegate = dataSource
+        tableView.prefetchDataSource = dataSource
         
         view.addSubview(tableView)
         
@@ -83,37 +99,12 @@ private extension MoviesViewController {
     }
     
     func setupTableViewBindings() {
-        dataSourceProvider.didSelectItem = { [weak self] indexPath in
+        dataSource.didSelectItem = { [weak self] indexPath in
             guard let self = self else { return }
-            
-            let item = self.viewModel.didSelect(itemAt: indexPath)
-            
-            self.didSendEventClosure?(.movieDetail(item))
-        }
-    }
-}
 
-// MARK: -
-extension MoviesViewController: MoviesViewModelDelegate {
-    func populate(displayState: DisplayState<[MoviesModel]>) {
-        switch displayState {
-        case .loading:
-            view.animateActivityIndicator()
-        case .success:
-            setupTableView()
-            dataSourceProvider.append()
-            view.removeActivityIndicator()
-        case .failure:
-            view.removeActivityIndicator()
-        }
-    }
-    
-    func displayMovies(displayState: DisplayState<[MoviesModel]>) {
-        switch displayState {
-        case .success:
-            dataSourceProvider.append()
-        default:
-            break
+            let item = self.viewModel.didSelect(itemAt: indexPath)
+
+            self.didSendEventClosure?(.movieDetail(item))
         }
     }
 }
@@ -121,14 +112,6 @@ extension MoviesViewController: MoviesViewModelDelegate {
 // MARK: - Events
 extension MoviesViewController {
     enum Event {
-        case movieDetail(_ selectedMovie: MoviesModel)
-        case favorites
-    }
-}
-
-// MARK: - ReloadFavorites Delegate
-extension MoviesViewController: ReloadFavoritesDelegate {
-    func refresh() {
-        dataSourceProvider.refresh()
+        case movieDetail(_ selectedMovie: Movie)
     }
 }
