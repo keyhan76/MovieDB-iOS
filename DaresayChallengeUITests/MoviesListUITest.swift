@@ -16,7 +16,7 @@ class MoviesListUITest: XCTestCase {
         
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["enable-testing"]
+        app.launchArguments = ["UI_TESTING"]
         app.launch()
     }
     

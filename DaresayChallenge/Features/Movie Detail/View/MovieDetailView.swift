@@ -109,6 +109,7 @@ struct ImageView: View {
                 .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailBackgroundImageView.rawValue)
         } placeholder: {
             Image(systemName: "film")
+                .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailBackgroundImageView.rawValue)
         }
     }
 }

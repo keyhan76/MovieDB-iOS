@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4BA0EDD161A27CF4EED7B035 /* Pods_DaresayChallenge_DaresayChallengeUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E787AF38D53058E46BEE1F58 /* Pods_DaresayChallenge_DaresayChallengeUITests.framework */; };
 		62E3D933F6B0C5E62A8D1D03 /* Pods_DaresayChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05394D88F6BA25B777E09AB8 /* Pods_DaresayChallenge.framework */; };
+		A83BED6828EDC3AE00BD97A7 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83BED6728EDC3AE00BD97A7 /* Config.swift */; };
+		A83BED6928EDC3E800BD97A7 /* movies.json in Resources */ = {isa = PBXBuildFile; fileRef = A88F8DE0286C8CC1001CC78B /* movies.json */; };
 		A85274072864494000571D95 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85274062864494000571D95 /* AppDelegate.swift */; };
 		A85274092864494000571D95 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85274082864494000571D95 /* SceneDelegate.swift */; };
 		A85274102864494200571D95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A852740F2864494200571D95 /* Assets.xcassets */; };
@@ -72,6 +74,8 @@
 		A8FEF5BC28EDA10E00574BC7 /* FavoriteMoviesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5BB28EDA10E00574BC7 /* FavoriteMoviesService.swift */; };
 		A8FEF5BE28EDA71200574BC7 /* CodingUserInfoKey+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5BD28EDA71200574BC7 /* CodingUserInfoKey+Extensions.swift */; };
 		A8FEF5C028EDAFFC00574BC7 /* MovieMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5BF28EDAFFC00574BC7 /* MovieMock.swift */; };
+		A8FEF5C128EDBCEF00574BC7 /* URLProtocolMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88F8DD3286C8875001CC78B /* URLProtocolMock.swift */; };
+		A8FEF5C428EDC00200574BC7 /* SeededURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5C328EDC00200574BC7 /* SeededURLSession.swift */; };
 		AF1E02F1504DA0A17DA4A6B3 /* Pods_DaresayChallengeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6059B7E103E4803ECDD9EAB9 /* Pods_DaresayChallengeTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -99,6 +103,7 @@
 		6059B7E103E4803ECDD9EAB9 /* Pods_DaresayChallengeTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DaresayChallengeTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71B1456CABA6908339F55112 /* Pods-DaresayChallenge.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DaresayChallenge.release.xcconfig"; path = "Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge.release.xcconfig"; sourceTree = "<group>"; };
 		7A9F475EECF4C600422EE8D3 /* Pods-DaresayChallenge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DaresayChallenge.debug.xcconfig"; path = "Target Support Files/Pods-DaresayChallenge/Pods-DaresayChallenge.debug.xcconfig"; sourceTree = "<group>"; };
+		A83BED6728EDC3AE00BD97A7 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		A85274032864494000571D95 /* DaresayChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DaresayChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A85274062864494000571D95 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A85274082864494000571D95 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -165,6 +170,7 @@
 		A8FEF5BB28EDA10E00574BC7 /* FavoriteMoviesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteMoviesService.swift; sourceTree = "<group>"; };
 		A8FEF5BD28EDA71200574BC7 /* CodingUserInfoKey+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingUserInfoKey+Extensions.swift"; sourceTree = "<group>"; };
 		A8FEF5BF28EDAFFC00574BC7 /* MovieMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieMock.swift; sourceTree = "<group>"; };
+		A8FEF5C328EDC00200574BC7 /* SeededURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededURLSession.swift; sourceTree = "<group>"; };
 		CAEA06B6172526332919FE1B /* Pods-DaresayChallenge-DaresayChallengeUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DaresayChallenge-DaresayChallengeUITests.release.xcconfig"; path = "Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E2A9665CA7689DE9AFAAA91F /* Pods-DaresayChallengeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DaresayChallengeTests.release.xcconfig"; path = "Target Support Files/Pods-DaresayChallengeTests/Pods-DaresayChallengeTests.release.xcconfig"; sourceTree = "<group>"; };
 		E787AF38D53058E46BEE1F58 /* Pods_DaresayChallenge_DaresayChallengeUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DaresayChallenge_DaresayChallengeUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -368,7 +374,9 @@
 				A88EB621286990E1009DBB12 /* HTTP Requests */,
 				A88EB622286990EF009DBB12 /* ServerRequest.swift */,
 				A88EB624286990F7009DBB12 /* Networking.swift */,
+				A8FEF5C328EDC00200574BC7 /* SeededURLSession.swift */,
 				A88EB626286990FE009DBB12 /* NetworkingError.swift */,
+				A83BED6728EDC3AE00BD97A7 /* Config.swift */,
 				A88EB62828699105009DBB12 /* DisplayState.swift */,
 				A88EB64C2869D370009DBB12 /* APIKey.swift */,
 			);
@@ -732,6 +740,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A83BED6928EDC3E800BD97A7 /* movies.json in Resources */,
 				A85274132864494200571D95 /* LaunchScreen.storyboard in Resources */,
 				A85274102864494200571D95 /* Assets.xcassets in Resources */,
 			);
@@ -896,10 +905,12 @@
 				A88EB627286990FE009DBB12 /* NetworkingError.swift in Sources */,
 				A89FC2C128CC9F5400171058 /* MovieCellContentConfiguration.swift in Sources */,
 				A88EB6332869A85D009DBB12 /* URLPath.swift in Sources */,
+				A8FEF5C128EDBCEF00574BC7 /* URLProtocolMock.swift in Sources */,
 				A8E46574286B2CF600F51994 /* MovieTableViewCell.swift in Sources */,
 				A88F8DCE286C7AFE001CC78B /* FavoriteMoviesViewController.swift in Sources */,
 				A8D151E128C638B3008FFFEC /* MovieDataStore.xcdatamodeld in Sources */,
 				A88EB6312869A838009DBB12 /* HTTPConstants.swift in Sources */,
+				A83BED6828EDC3AE00BD97A7 /* Config.swift in Sources */,
 				A88EB61F286990C5009DBB12 /* Coordinator.swift in Sources */,
 				A863D53B286D8335007B67BF /* AccessibilityIdentifiers.swift in Sources */,
 				A88EB6412869A986009DBB12 /* AppCoordinator.swift in Sources */,
@@ -908,6 +919,7 @@
 				A8E46567286AF00400F51994 /* MoviesService.swift in Sources */,
 				A88EB62928699105009DBB12 /* DisplayState.swift in Sources */,
 				A8D151E828C724AB008FFFEC /* MovieDetailViewModel.swift in Sources */,
+				A8FEF5C428EDC00200574BC7 /* SeededURLSession.swift in Sources */,
 				A88EB6492869AA31009DBB12 /* MoviesCoordinator.swift in Sources */,
 				A88EB6392869A8D1009DBB12 /* DateFormatter+Extensions.swift in Sources */,
 				A8E46572286B2CE200F51994 /* TableViewDataSource.swift in Sources */,
