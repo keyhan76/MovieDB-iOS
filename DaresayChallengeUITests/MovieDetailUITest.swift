@@ -31,12 +31,12 @@ class MovieDetailUITest: XCTestCase {
         let movieDetailBackgroundImageView = findElement(in: app.images, with: .movieDetailBackgroundImageView)
         
         
-        XCTAssert(movieDetailTitleLabel.waitForExistence(timeout: 2))
-        XCTAssert(movieDetailRatingLabel.waitForExistence(timeout: 2))
-        XCTAssert(movieDetailContainerView.waitForExistence(timeout: 2))
-        XCTAssert(movieDetailFavoriteButton.waitForExistence(timeout: 2))
-        XCTAssert(movieDetailDescLabel.waitForExistence(timeout: 2))
-        XCTAssert(movieDetailBackgroundImageView.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailTitleLabel.exists)
+        XCTAssert(movieDetailRatingLabel.exists)
+        XCTAssert(movieDetailContainerView.exists)
+        XCTAssert(movieDetailFavoriteButton.exists)
+        XCTAssert(movieDetailDescLabel.exists)
+        XCTAssert(movieDetailBackgroundImageView.exists)
     }
 }
 

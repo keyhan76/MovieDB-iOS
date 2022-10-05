@@ -9,12 +9,10 @@ import Foundation
 
 enum AccessibilityIdentifiers: String {
     case moviesTableView
-    case favoriteBarButton
     case moviesTableViewCell
     case movieTitleLabel
     case movieImageView
     case movieDescriptionLabel
-    case movieFavoriteImageView
     case movieDetailBackgroundImageView
     case movieDetailTitleLabel
     case movieDetailDescLabel
