@@ -16,8 +16,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
-        setupCoordinator(for: scene)
         setupCoreDataStore()
+        setupCoordinator(for: scene)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -68,6 +68,6 @@ private extension SceneDelegate {
     
     func setupCoreDataStore() {
         coreDataStore = CoreDataStore(.persistent)
-        coreDataAPI = CoreDataAPI(managedContext: coreDataStore.mainContext, coreDataStore: coreDataStore)
+        coreDataAPI = CoreDataAPI(managedContext: coreDataStore.mainContext, importContext: coreDataStore.importContext, coreDataStore: coreDataStore)
     }
 }

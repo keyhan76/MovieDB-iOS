@@ -10,7 +10,9 @@ import Foundation
 // Using Decorator pattern for Service and ViewModel
 
 protocol MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest) async throws -> ServerModels.Movies.Response
+    var coreDataAPI: CoreDataAPI { get }
+    
+    func getMovies(httpRequest: HTTPRequest, managedContext: ManagedObjectContext) async throws -> ServerModels.Movies.Response
     func getConfigs(httpRequest: HTTPRequest) async throws -> ServerModels.Configuration.Response
 }
 
@@ -41,19 +43,20 @@ extension ServerRequest {
 // MARK: - Movies Service
 final class MoviesService {
     private let serverManager: ServerProtocol
-    
-    public static let shared: MoviesServiceProtocol = MoviesService(serverManager: MovieServer.shared)
+    let coreDataAPI: CoreDataAPI
     
     // MARK: - Init
-    init(serverManager: ServerProtocol) {
+    init(serverManager: ServerProtocol, coreDataAPI: CoreDataAPI) {
         self.serverManager = serverManager
+        self.coreDataAPI = coreDataAPI
     }
 }
 
 // MARK: - MoviesService Protocol
 extension MoviesService: MoviesServiceProtocol {
-    func getMovies(httpRequest: HTTPRequest) async throws -> ServerModels.Movies.Response {
-        let result: ServerData<ServerModels.Movies.Response> = try await serverManager.perform(request: httpRequest)
+    func getMovies(httpRequest: HTTPRequest, managedContext: ManagedObjectContext) async throws -> ServerModels.Movies.Response {
+        let result: ServerData<ServerModels.Movies.Response> = try await serverManager.perform(request: httpRequest, managedObjectContext: managedContext)
+        
         return result.model
     }
     

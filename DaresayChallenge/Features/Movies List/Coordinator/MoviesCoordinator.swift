@@ -10,6 +10,7 @@ import SwiftUI
 
 protocol MoviesCoordinatorProtocol: Coordinator {
     func showMoviesViewController(animated: Bool)
+    func showMovieDetailViewController(with movie: Movie, animated: Bool)
 }
 
 final class MoviesCoordinator: MoviesCoordinatorProtocol {
@@ -49,37 +50,32 @@ final class MoviesCoordinator: MoviesCoordinatorProtocol {
     }
     
     func showMoviesViewController(animated: Bool = true) {
-        let moviesVC = MoviesViewController()
+        
+        let service = MoviesService(serverManager: MovieServer.shared, coreDataAPI: coreDataAPI)
+        let viewModel = MoviesViewModel(moviesService: service)
+        
+        let moviesVC = MoviesViewController(viewModel: viewModel)
         
         moviesVC.didSendEventClosure = { [weak self] event in
             guard let self = self else { return }
             
             switch event {
             case .movieDetail(let selectedMovie):
-                self.showMovieDetailViewController(viewController: moviesVC, with: selectedMovie)
-            case .favorites:
-                self.showFavoriteMoviesViewController()
+                self.showMovieDetailViewController(with: selectedMovie)
             }
         }
         
         navigationController.pushViewController(moviesVC, animated: animated)
     }
     
-    func showMovieDetailViewController(viewController: ReloadFavoritesDelegate, with movie: MoviesModel, animated: Bool = true) {
+    func showMovieDetailViewController(with movie: Movie, animated: Bool = true) {
         
-        let viewModel = MovieDetailViewModel(coreDataAPI: coreDataAPI, selectedMovie: movie)
-        viewModel.delegate = viewController
+        let movieDetailService = MovieDetailService(coreDataAPI: coreDataAPI)
+        let viewModel = MovieDetailViewModel(movieDetailService: movieDetailService, selectedMovie: movie)
 
         let movieDetailView = UIHostingController(rootView: MovieDetailView(viewModel: viewModel))
+        movieDetailView.hidesBottomBarWhenPushed = true
         
         navigationController.pushViewController(movieDetailView, animated: animated)
-    }
-    
-    func showFavoriteMoviesViewController(animated: Bool = true) {
-        
-        let viewModel = FavoriteMoviesViewModel(coreDataAPI: coreDataAPI)
-        let favoritesVC = FavoriteMoviesViewController(viewModel: viewModel)
-        
-        navigationController.pushViewController(favoritesVC, animated: animated)
     }
 }

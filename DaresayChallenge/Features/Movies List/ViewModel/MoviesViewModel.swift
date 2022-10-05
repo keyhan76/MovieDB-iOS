@@ -21,7 +21,7 @@ final class MoviesViewModel {
     private var moviesService: MoviesServiceProtocol
     
     private var currentPage: UInt = 1
-    private var allMovies: [MoviesModel] = []
+    private var allMovies: [Movie] = []
     private var configCache: ConfigurationModel?
     
     private var itemsCount: Int {
@@ -37,7 +37,7 @@ final class MoviesViewModel {
     }
     
     // MARK: - Public methods
-    @MainActor public func populate() async -> [MoviesModel] {
+    @MainActor public func populate() async -> [Movie] {
         isLoading = true
         
         async let movies = getPopularMovies()
@@ -49,11 +49,11 @@ final class MoviesViewModel {
         return allMovies
     }
     
-    @MainActor public func getPopularMovies() async -> [MoviesModel] {
+    @MainActor public func getPopularMovies() async -> [Movie] {
         let httpRequest = ServerRequest.Movies.getMovies(page: currentPage)
         
         do {
-            let results = try await moviesService.getMovies(httpRequest: httpRequest)
+            let results = try await moviesService.getMovies(httpRequest: httpRequest, managedContext: moviesService.coreDataAPI.importContext)
             
             if let movies = results.results {
                 if movies.isEmpty {
@@ -71,7 +71,7 @@ final class MoviesViewModel {
         return allMovies
     }
     
-    public func didSelect(itemAt indexPath: Int) -> MoviesModel {
+    public func didSelect(itemAt indexPath: Int) -> Movie {
         let movie = self.item(at: indexPath)
         return movie
     }
@@ -92,7 +92,7 @@ final class MoviesViewModel {
         return configCache
     }
     
-    private func item(at index: Int) -> MoviesModel {
+    private func item(at index: Int) -> Movie {
         allMovies[index]
     }
 }
@@ -103,7 +103,7 @@ extension MoviesViewModel: ListViewModelable {
         return indexPath.row == itemsCount - 1
     }
     
-    func prefetchData() async -> [MoviesModel] {
+    func prefetchData() async -> [Movie] {
         return await getPopularMovies()
     }
 }

@@ -32,15 +32,14 @@ final class AppCoordinator: NSObject, AppCoordinatorProtocol {
     }
 
     func showMainFlow() {
-        let moviesCoordinator = MoviesCoordinator(navigationController)
-        moviesCoordinator.finishDelegate = self
-        moviesCoordinator.start()
-        childCoordinators.append(moviesCoordinator)
+        let tabBarCoordinator = TabCoordinator(navigationController)
+        tabBarCoordinator.start()
+        childCoordinators.append(tabBarCoordinator)
     }
 }
 
 extension AppCoordinator: CoordinatorFinishDelegate {
     func coordinatorDidFinish(childCoordinator: Coordinator) {
-    
+        // Implement the logic of changing coordinators
     }
 }

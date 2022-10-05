@@ -18,7 +18,7 @@ struct MovieDetailView: View {
                 ImageView(url: viewModel.movieImageURL)
                     .frame(height: metrics.size.height * 0.35)
                 
-                DetailView(isFavorite: viewModel.isAvailableInFavorites(), viewModel: viewModel)
+                DetailView(viewModel: viewModel)
             }
         }
     }
@@ -27,7 +27,6 @@ struct MovieDetailView: View {
 // MARK: - Detail View
 struct DetailView: View {
     
-    @State var isFavorite: Bool
     @ObservedObject var viewModel: MovieDetailViewModel
     
     var body: some View {
@@ -45,10 +44,9 @@ struct DetailView: View {
                 Spacer()
                 
                 Button {
-                    isFavorite = !isFavorite
-                    viewModel.addToFavorites(isFavorite: isFavorite)
+                    viewModel.isFavorite = !viewModel.isFavorite
                 } label: {
-                    if isFavorite {
+                    if viewModel.isFavoriteMovie {
                         Label("Remove from Favorites", systemImage: "heart.fill")
                     } else {
                         Label("Add to Favorites", systemImage: "heart")

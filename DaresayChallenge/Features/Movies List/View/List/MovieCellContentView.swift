@@ -42,15 +42,6 @@ class MovieCellContentView: UIView, UIContentView {
         return imageView
     }()
     
-    private lazy var favoriteImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.tintColor = .red
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.accessibilityIdentifier = AccessibilityIdentifiers.movieFavoriteImageView.rawValue
-        return imageView
-    }()
-    
     private lazy var placeHolderImage: UIImage = {
         UIImage(systemName: "film")!
     }()
@@ -70,26 +61,20 @@ class MovieCellContentView: UIView, UIContentView {
     
     // MARK: - Configure
     public func configure(with configuration: UIContentConfiguration) {
-        guard let configuration = configuration as? MovieCellContentConfiguration<MoviesModel> else {
+        guard let configuration = configuration as? MovieCellContentConfiguration<Movie> else {
             return
         }
         
         let model = configuration.model
         
-        updateUI(title: model.title, description: model.overview, imageURL: model.posterURL, isFavorite: model.isAddedToFavorites)
+        updateUI(title: model.title, description: model.overview, imageURL: model.posterURL)
     }
     
-    public func updateUI(title: String?, description: String?, imageURL: URL?, isFavorite: Bool) {
+    public func updateUI(title: String?, description: String?, imageURL: URL?) {
         titleLabel.text = title
         descriptionLabel.text = description
         
         movieImageView.load(url: imageURL, placeholder: placeHolderImage)
-        
-        if isFavorite{
-            favoriteImageView.image = UIImage(systemName: "heart.fill")
-        } else {
-            favoriteImageView.image = UIImage(systemName: "heart")
-        }
     }
 }
 
@@ -103,15 +88,9 @@ extension MovieCellContentView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
         addSubview(movieImageView)
-        addSubview(favoriteImageView)
-        
-        favoriteImageView.rightAnchor.constraint(equalTo: rightAnchor, constant: -8).isActive = true
-        favoriteImageView.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
-        favoriteImageView.widthAnchor.constraint(equalToConstant: 22).isActive = true
-        favoriteImageView.heightAnchor.constraint(equalToConstant: 22).isActive = true
         
         stackView.leftAnchor.constraint(equalTo: movieImageView.rightAnchor, constant: 8).isActive = true
-        stackView.rightAnchor.constraint(equalTo: favoriteImageView.leftAnchor, constant: -12).isActive = true
+        stackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -12).isActive = true
         stackView.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
         stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8).isActive = true
         
