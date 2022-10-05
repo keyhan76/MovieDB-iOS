@@ -12,11 +12,17 @@
 ## Features
 - MVVM Architecture 
 - Coordinator pattern
-- Generic network layer using PrmiseKit
-- Generic TableView dataSource
+- Generic network layer using Async/Await
+- Generic TableView dataSource using UITableDiffableDataSource
+- UITableViewCell configurations using UIContentConfiguration & UIContentView
+- Combination of SwiftUI and UIKit
+- Programmatic UI
+- CoreData as offline storage
+- Generic CoreData API
 - Well structred project
 - Fully testable service layer and ViewModels
 - Featuring both Unit tests & UI tests
+- Mocked data for UITests
 - Image downloader
 - Caching system
 - Supports both light and dark mode
