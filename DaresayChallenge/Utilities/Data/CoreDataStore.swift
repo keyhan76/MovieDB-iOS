@@ -8,6 +8,8 @@
 import Foundation
 import CoreData
 
+typealias ManagedObjectContext = NSManagedObjectContext
+
 protocol CoreDataStorable {
     var mainContext: NSManagedObjectContext { get }
     
@@ -30,6 +32,14 @@ open class CoreDataStore {
         // swiftlint:disable force_unwrapping
         let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd")!
         return NSManagedObjectModel(contentsOf: modelURL)!
+    }()
+    
+    public lazy var importContext: NSManagedObjectContext = {
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.automaticallyMergesChangesFromParent = true
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.parent = mainContext
+        return context
     }()
     
     public lazy var mainContext: NSManagedObjectContext = {
@@ -62,12 +72,13 @@ extension CoreDataStore: CoreDataStorable {
     }
     
     func saveContext(_ context: NSManagedObjectContext) {
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        guard context.hasChanges  else { return }
+        
         context.perform {
             do {
                 try context.save()
-            } catch let error as NSError {
-                print("Unresolved error \(error), \(error.userInfo)")
+            } catch {
+                print(error)
             }
         }
     }

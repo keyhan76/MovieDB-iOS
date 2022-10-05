@@ -14,7 +14,13 @@ protocol ServerProtocol {
     
     var validResponseCodes: [Int]! { get }
     
-    func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T>
+    func perform<T: Codable>(request: HTTPRequest, managedObjectContext: ManagedObjectContext?) async throws -> ServerData<T>
+}
+
+extension ServerProtocol {
+    func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T> {
+        try await perform(request: request, managedObjectContext: nil)
+    }
 }
 
 final class MovieServer: NSObject, ServerProtocol {
@@ -40,7 +46,7 @@ final class MovieServer: NSObject, ServerProtocol {
         self.validResponseCodes = validResponseCodes
     }
     
-    func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T> {
+    func perform<T: Codable>(request: HTTPRequest, managedObjectContext: ManagedObjectContext?) async throws -> ServerData<T> {
         
         // Check to see if we have a valid request
         guard let urlRequest = request.request else {
@@ -68,6 +74,9 @@ final class MovieServer: NSObject, ServerProtocol {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
             decoder.keyDecodingStrategy = .convertFromSnakeCase
+            if let managedObjectContext = managedObjectContext {
+                decoder.userInfo[.managedObjectContext] = managedObjectContext
+            }
             let responseObject = try decoder.decode(T.self, from: data)
             
             return ServerData(httpStatus: httpResponse.statusCode, model: responseObject, httpHeaders: httpHeader)

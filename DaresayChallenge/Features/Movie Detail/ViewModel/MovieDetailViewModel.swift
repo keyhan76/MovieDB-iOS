@@ -6,24 +6,22 @@
 //
 
 import SwiftUI
-import CoreData
 
 final class MovieDetailViewModel: ObservableObject {
     
     // MARK: - Variables
-    private let coreDataAPI: CoreDataAPI
-    public let selectedMovie: MoviesModel
-    
-    public weak var delegate: ReloadFavoritesDelegate?
-    
+    private let movieDetailService: MovieDetailService
+    public let selectedMovie: Movie
     private var savedMovie: Movie?
     
+    @Published var isFavoriteMovie: Bool = false
+    
     var movieTitle: String {
-        selectedMovie.title ?? ""
+        selectedMovie.title ?? "No title available"
     }
     
     var movieDescription: String {
-        selectedMovie.overview ?? ""
+        selectedMovie.overview ?? "No description available"
     }
     
     var movieImageURL: URL? {
@@ -31,65 +29,35 @@ final class MovieDetailViewModel: ObservableObject {
     }
     
     var movieRating: String {
-        if let rating = selectedMovie.voteAverage {
-            return "Rating: \(String(describing: rating * 10))%"
+        let rating = selectedMovie.voteAverage
+        return "Rating: \(String(describing: rating * 10))%"
+    }
+    
+    var isFavorite: Bool {
+        get {
+            guard let movie = try? movieDetailService.fetchFavoriteMovie(with: selectedMovie.movieID) else {
+                return false
+            }
+            
+            savedMovie = movie
+            return movie.isFavorite
         }
-        return ""
+        set {
+            isFavoriteMovie = newValue
+            selectedMovie.isFavorite = newValue
+            
+            if let savedMovie = savedMovie {
+                movieDetailService.updateSaved(movie: savedMovie)
+            } else {
+                savedMovie = movieDetailService.saveMovieInDB(selectedMovie: selectedMovie)
+            }
+        }
     }
     
     // MARK: - Init
-    init(coreDataAPI: CoreDataAPI, selectedMovie: MoviesModel) {
-        self.coreDataAPI = coreDataAPI
+    init(movieDetailService: MovieDetailService, selectedMovie: Movie) {
+        self.movieDetailService = movieDetailService
         self.selectedMovie = selectedMovie
-    }
-    
-    // MARK: - Public methods
-    func addToFavorites(isFavorite: Bool) {
-        
-        selectedMovie.isFavorite = isFavorite
-        
-        delegate?.refresh(item: selectedMovie)
-        
-        // If saved movie exists, remove it from database
-        if let savedMovie = savedMovie {
-            
-            do {
-                try coreDataAPI.delete(entity: savedMovie)
-            } catch let error {
-                print(error)
-            }
-            
-            return
-        }
-        
-        let movie = coreDataAPI.createManagedObject(entity: Movie.self)  as! Movie
-        
-        movie.id = Int64(selectedMovie.movieID ?? 0)
-        movie.imageURL = selectedMovie.posterURL
-        movie.title = selectedMovie.title
-        movie.movieDescription = selectedMovie.overview
-        movie.isFavorite = isFavorite
-        
-        savedMovie = movie
-        
-        do {
-            try coreDataAPI.save()
-        } catch let error {
-            print(error)
-        }
-    }
-    
-    func isAvailableInFavorites() -> Bool {
-        do {
-            let objects = try coreDataAPI.fetchObject(movieID: selectedMovie.movieID ?? 0, entity: Movie.self)
-            if let movie = objects.first {
-                savedMovie = movie
-                return movie.isFavorite
-            }
-        } catch let error {
-            print(error)
-        }
-        
-        return false
+        isFavoriteMovie = isFavorite
     }
 }

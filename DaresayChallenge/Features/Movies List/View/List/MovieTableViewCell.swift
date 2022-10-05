@@ -33,7 +33,7 @@ private extension MovieTableViewCell {
 
 // MARK: - Configuration
 extension MovieTableViewCell: DiffableTableViewCell {
-    func configureCellWith(_ item: MoviesModel) {
+    func configureCellWith(_ item: Movie) {
         let config = MovieCellContentConfiguration(model: item)
         contentConfiguration = config
     }

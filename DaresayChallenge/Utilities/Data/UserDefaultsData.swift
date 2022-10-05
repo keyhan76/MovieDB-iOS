@@ -12,7 +12,6 @@ struct UserDefaultsData {
     enum UserDefaultsKey: String {
         case accessToken
         case configModel
-        case favorites
     }
     
     @UserDefaultsStorage(.accessToken, defaultValue: APIKey.readAccessToken.rawValue)
@@ -20,9 +19,6 @@ struct UserDefaultsData {
     
     @UserDefaultsStorage(.configModel, defaultValue: ConfigurationModel())
     static var configModel: ConfigurationModel
-    
-    @UserDefaultsStorage(.favorites, defaultValue: [MoviesModel]())
-    static var favoriteList: [MoviesModel]
     
     static func clearUserDefaultFor(_ key: UserDefaultsKey) {
         UserDefaults.standard.removeObject(forKey: key.rawValue)

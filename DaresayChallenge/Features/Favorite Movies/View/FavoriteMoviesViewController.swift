@@ -6,12 +6,13 @@
 //
 
 import UIKit
+import CoreData
 
 final class FavoriteMoviesViewController: UIViewController {
 
     // MARK: - Variables
     private let viewModel: FavoriteMoviesViewModel
-    private var dataSourceProvider: TableViewDataSource<FavoriteMovieTableViewCell, FavoriteMoviesViewModel>!
+    private var dataSourceProvider: UITableViewDiffableDataSource<Section, NSManagedObjectID>!
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -54,7 +55,9 @@ private extension FavoriteMoviesViewController {
         view.backgroundColor = .systemBackground
         navigationItem.title = "Favorites"
         
-        dataSourceProvider = TableViewDataSource(tableView, viewModel: viewModel)
+        viewModel.fetchedResultsControllerDelegate = self
+        
+        dataSourceProvider = viewModel.createDiffableDataSource(for: tableView)
         
         view.addSubview(tableView)
         
@@ -63,6 +66,29 @@ private extension FavoriteMoviesViewController {
         tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         
-        dataSourceProvider.append(new: viewModel.favoriteMovies)
+        self.viewModel.performFetch()
+    }
+}
+
+extension FavoriteMoviesViewController: NSFetchedResultsControllerDelegate {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+        guard let dataSource = self.tableView.dataSource as? UITableViewDiffableDataSource<Section, NSManagedObjectID> else {
+            assertionFailure("The data source has not implemented snapshot support while it should")
+            return
+        }
+        var snapshot = snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>
+        let currentSnapshot = dataSource.snapshot() as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>
+        
+        let reloadIdentifiers: [NSManagedObjectID] = snapshot.itemIdentifiers.compactMap { itemIdentifier in
+            guard let currentIndex = currentSnapshot.indexOfItem(itemIdentifier), let index = snapshot.indexOfItem(itemIdentifier), index == currentIndex else {
+                return nil
+            }
+            guard let existingObject = try? controller.managedObjectContext.existingObject(with: itemIdentifier), existingObject.isUpdated else { return nil }
+            return itemIdentifier
+        }
+        snapshot.reloadItems(reloadIdentifiers)
+        
+        let shouldAnimate = self.tableView.numberOfSections != 0
+        dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>, animatingDifferences: shouldAnimate)
     }
 }

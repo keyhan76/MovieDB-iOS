@@ -10,26 +10,29 @@ import CoreData
 
 protocol CoreDataAPIProtocol {
     var managedContext: NSManagedObjectContext { get }
+    var importContext: NSManagedObjectContext { get }
     var coreDataStore: CoreDataStore { get }
     
-    func save() throws
-    func delete<T: NSManagedObject>(entity: T) throws
-    func fetchAllObjects<T: NSManagedObject>(entity: T.Type) throws -> [T]
+    func save()
+    func delete<T: NSManagedObject>(object: T) throws
     func createManagedObject<T: NSManagedObject>(entity: T.Type) -> NSManagedObject
-    func fetchObject<T: NSManagedObject>(movieID: Int, entity: T.Type) throws -> [T]
-    func fetch<T: NSManagedObject>(entity: T.Type) throws -> NSFetchedResultsController<T>
+    func fetchObject<T: NSManagedObject>(predicate: NSPredicate, entity: T.Type) throws -> [T]
+    func createFetchResultsController<T: NSManagedObject>(entity: T.Type, predicate: NSPredicate?, delegate: NSFetchedResultsControllerDelegate?) throws -> NSFetchedResultsController<T>
+    func batchUpdate<T: NSManagedObject>(entity: T.Type, propertiesToUpdate: [AnyHashable: Any], predicate: NSPredicate?) throws
 }
 
 final class CoreDataAPI {
     
     // MARK: - Variables
     let managedContext: NSManagedObjectContext
+    let importContext: NSManagedObjectContext
     let coreDataStore: CoreDataStore
     
     // MARK: - Init
 
-    init(managedContext: NSManagedObjectContext, coreDataStore: CoreDataStore) {
+    init(managedContext: NSManagedObjectContext, importContext: NSManagedObjectContext, coreDataStore: CoreDataStore) {
         self.managedContext = managedContext
+        self.importContext = importContext
         self.coreDataStore = coreDataStore
     }
     
@@ -55,41 +58,52 @@ extension CoreDataAPI: CoreDataAPIProtocol {
         return managedObject
     }
     
-    func save() throws {
+    func save() {
         coreDataStore.saveContext(managedContext)
     }
     
-    func delete<T: NSManagedObject>(entity: T) throws {
-        managedContext.delete(entity)
-        coreDataStore.saveContext(managedContext)
+    func object(with id: NSManagedObjectID) throws -> NSManagedObject {
+        try managedContext.existingObject(with: id)
     }
     
-    func fetchAllObjects<T: NSManagedObject>(entity: T.Type) throws -> [T] {
-        let fetchRequest = T.fetchRequest()
-        
-        let objects = try managedContext.fetch(fetchRequest) as! [T]
-        return objects
+    func delete<T: NSManagedObject>(object: T) throws {
+        managedContext.delete(object)
     }
     
-    func fetchObject<T: NSManagedObject>(movieID: Int, entity: T.Type) throws -> [T] {
+    func fetchObject<T: NSManagedObject>(predicate: NSPredicate, entity: T.Type) throws -> [T] {
         let fetchRequest = T.fetchRequest()
 
-        fetchRequest.predicate = NSPredicate(format: "id == %i", movieID)
+        fetchRequest.predicate = predicate
         
         let objects = try managedContext.fetch(fetchRequest) as! [T]
         return objects
     }
     
-    func fetch<T: NSManagedObject>(entity: T.Type) throws -> NSFetchedResultsController<T> {
+    func createFetchResultsController<T: NSManagedObject>(entity: T.Type, predicate: NSPredicate?, delegate: NSFetchedResultsControllerDelegate?) -> NSFetchedResultsController<T> {
         let entityName = String(describing: entity)
         let request = NSFetchRequest<T>(entityName: entityName)
         request.fetchBatchSize = 20
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
         let fetchedResultsController = NSFetchedResultsController<T>(fetchRequest: request, managedObjectContext: managedContext, sectionNameKeyPath: nil, cacheName: nil)
-         
-        try fetchedResultsController.performFetch()
+        fetchedResultsController.delegate = delegate
+        fetchedResultsController.fetchRequest.predicate = predicate
         
         return fetchedResultsController
+    }
+    
+    func batchUpdate<T: NSManagedObject>(entity: T.Type, propertiesToUpdate: [AnyHashable : Any], predicate: NSPredicate?) throws {
+        let entityDescription = generate(entity: entity)
+        
+        let updateBatchRequest = NSBatchUpdateRequest(entity: entityDescription)
+        updateBatchRequest.predicate = predicate
+        updateBatchRequest.propertiesToUpdate = propertiesToUpdate
+        updateBatchRequest.resultType = .updatedObjectIDsResultType
+        
+        let result = try managedContext.execute(updateBatchRequest) as? NSBatchUpdateResult
+        
+        guard let objectIDArray = result?.result as? [NSManagedObjectID] else { return }
+        let changes = [NSUpdatedObjectsKey : objectIDArray]
+        NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [managedContext])
     }
 }

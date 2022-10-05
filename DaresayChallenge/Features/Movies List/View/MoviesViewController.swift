@@ -10,7 +10,7 @@ import UIKit
 final class MoviesViewController: UIViewController {
 
     // MARK: - Variables
-    private let viewModel: MoviesViewModel = MoviesViewModel(moviesService: MoviesService.shared)
+    private let viewModel: MoviesViewModel
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -25,6 +25,17 @@ final class MoviesViewController: UIViewController {
     private var dataSource: TableViewDataSource<MovieTableViewCell, MoviesViewModel>!
     
     public var didSendEventClosure: ((MoviesViewController.Event) -> Void)?
+    
+    // MARK: - Init
+    init(viewModel: MoviesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
@@ -55,14 +66,6 @@ private extension MoviesViewController {
         view.backgroundColor = .systemBackground
         
         navigationItem.title = "MovieDB"
-        
-        let rightBarButton = UIBarButtonItem(title: "Favorites", primaryAction: UIAction(handler: { [weak self] _ in
-            guard let self = self else { return }
-            self.didSendEventClosure?(.favorites)
-        }))
-        
-        navigationItem.rightBarButtonItem = rightBarButton
-        rightBarButton.accessibilityIdentifier = AccessibilityIdentifiers.favoriteBarButton.rawValue
     }
     
     func populate() {
@@ -109,14 +112,6 @@ private extension MoviesViewController {
 // MARK: - Events
 extension MoviesViewController {
     enum Event {
-        case movieDetail(_ selectedMovie: MoviesModel)
-        case favorites
-    }
-}
-
-// MARK: - ReloadFavorites Delegate
-extension MoviesViewController: ReloadFavoritesDelegate {
-    func refresh(item: MoviesModel) {
-        dataSource.reload(items: [item])
+        case movieDetail(_ selectedMovie: Movie)
     }
 }

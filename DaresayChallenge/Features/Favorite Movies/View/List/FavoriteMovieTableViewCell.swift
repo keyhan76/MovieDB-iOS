@@ -37,7 +37,7 @@ final class FavoriteMovieCellContentView: MovieCellContentView {
         
         let model = configuration.model
         
-        updateUI(title: model.title, description: model.movieDescription, imageURL: model.imageURL, isFavorite: model.isFavorite)
+        updateUI(title: model.title, description: model.overview, imageURL: model.posterURL)
     }
 }
 
