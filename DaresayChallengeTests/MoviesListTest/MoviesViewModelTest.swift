@@ -22,7 +22,8 @@ class MoviesViewModelTest: XCTestCase {
     }
     
     func testGetMovies() async {
-        sut = MoviesViewModel(moviesService: MoviesService.shared)
+        let moviesService = MoviesService(serverManager: MovieServer.shared, coreDataAPI: MockData.coreDataAPI)
+        sut = MoviesViewModel(moviesService: moviesService)
         
         let movies = await sut?.getPopularMovies()
         
@@ -30,7 +31,8 @@ class MoviesViewModelTest: XCTestCase {
     }
 
     func testPopulate() async {
-        sut = MoviesViewModel(moviesService: MoviesService.shared)
+        let moviesService = MoviesService(serverManager: MovieServer.shared, coreDataAPI: MockData.coreDataAPI)
+        sut = MoviesViewModel(moviesService: moviesService)
         
         
         let movies = await sut?.populate()

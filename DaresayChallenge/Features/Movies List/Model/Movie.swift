@@ -49,6 +49,17 @@ class Movie: NSManagedObject, ServerModel {
         self.posterPath = try container.decode(String.self, forKey: .posterPath)
     }
     
+    convenience init(movieID: Int64, overview: String, posterPath: String, title: String, voteAverage: Double, isFavorite: Bool, context: NSManagedObjectContext) {
+        self.init(context: context)
+        
+        self.movieID = movieID
+        self.overview = overview
+        self.posterPath = posterPath
+        self.title = title
+        self.voteAverage = voteAverage
+        self.isFavorite = isFavorite
+    }
+    
     // MARK: - Encode
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

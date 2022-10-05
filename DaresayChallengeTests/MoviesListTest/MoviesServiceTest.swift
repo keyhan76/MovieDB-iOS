@@ -57,11 +57,11 @@ class MoviesServiceTest: XCTestCase {
         
         let networkMock = NetworkingMock(session: session, validResponseCodes: [200])
         
-        sut = MoviesService(serverManager: networkMock)
+        sut = MoviesService(serverManager: networkMock, coreDataAPI: MockData.coreDataAPI)
 
         let httpRequest = getMovies(url: url, page: 1)
         
-        let result = try await sut?.getMovies(httpRequest: httpRequest)
+        let result = try await sut?.getMovies(httpRequest: httpRequest, managedContext: MockData.coreDataAPI.importContext)
         
         let movies = try XCTUnwrap(result?.results)
         
@@ -85,7 +85,7 @@ class MoviesServiceTest: XCTestCase {
         
         let networkMock = NetworkingMock(session: session, validResponseCodes: [200])
         
-        sut = MoviesService(serverManager: networkMock)
+        sut = MoviesService(serverManager: networkMock, coreDataAPI: MockData.coreDataAPI)
         
         let httpRequest = getConfigs(url: url)
         
