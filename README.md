@@ -1,4 +1,4 @@
-# MovieDBChallenge-iOS
+# MovieDB-iOS
 
 ## Assignment
 - Build an awesome movie app that shows popular and high rated movies.
