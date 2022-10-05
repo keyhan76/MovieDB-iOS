@@ -31,7 +31,7 @@ struct DetailView: View {
     
     var body: some View {
         ZStack {
-            Color(.white)
+            Color(.systemBackground)
                 .cornerRadius(20)
                 .accessibilityIdentifier(AccessibilityIdentifiers.movieDetailContainerView.rawValue)
             
