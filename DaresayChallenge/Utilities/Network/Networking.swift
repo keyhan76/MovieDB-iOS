@@ -36,7 +36,7 @@ final class MovieServer: NSObject, ServerProtocol {
     private override init() {
         self.validResponseCodes = [200, 201]
         self.dispatchQueue = .main
-        self.session = URLSession.shared
+        self.session = Config.urlSession
         super.init()
     }
     
@@ -111,9 +111,4 @@ final class MovieServer: NSObject, ServerProtocol {
             return fallbackErrorModel()
         }
     }
-}
-
-class ServerTime {
-    var now: Date?
-    static let shared = ServerTime()
 }
