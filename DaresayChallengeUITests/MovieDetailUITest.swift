@@ -22,44 +22,21 @@ class MovieDetailUITest: XCTestCase {
     
     func testTitleLabelExists() {
         goToMovieDetailVC()
-        let label = findElement(in: app.staticTexts, with: .movieDetailTitleLabel)
         
-        XCTAssert(label.waitForExistence(timeout: 2))
-    }
-    
-    func testRatingLabelExists() {
-        goToMovieDetailVC()
-        let label = findElement(in: app.staticTexts, with: .movieDetailRatingLabel)
+        let movieDetailTitleLabel = findElement(in: app.staticTexts, with: .movieDetailTitleLabel)
+        let movieDetailRatingLabel = findElement(in: app.staticTexts, with: .movieDetailRatingLabel)
+        let movieDetailContainerView = findElement(in: app.otherElements, with: .movieDetailContainerView)
+        let movieDetailFavoriteButton = findElement(in: app.buttons, with: .movieDetailFavoriteButton)
+        let movieDetailDescLabel = findElement(in: app.staticTexts, with: .movieDetailDescLabel)
+        let movieDetailBackgroundImageView = findElement(in: app.images, with: .movieDetailBackgroundImageView)
         
-        XCTAssert(label.waitForExistence(timeout: 2))
-    }
-    
-    func testContainerViewExists() {
-        goToMovieDetailVC()
-        let view = findElement(in: app.otherElements, with: .movieDetailContainerView)
         
-        XCTAssert(view.waitForExistence(timeout: 2))
-    }
-    
-    func testFavoriteButtonExists() {
-        goToMovieDetailVC()
-        let button = findElement(in: app.buttons, with: .movieDetailFavoriteButton)
-        
-        XCTAssert(button.waitForExistence(timeout: 2))
-    }
-    
-    func testDescriptionLabelExists() {
-        goToMovieDetailVC()
-        let label = findElement(in: app.staticTexts, with: .movieDetailDescLabel)
-        
-        XCTAssert(label.waitForExistence(timeout: 2))
-    }
-    
-    func testImageViewExists() {
-        goToMovieDetailVC()
-        let imageView = findElement(in: app.images, with: .movieDetailBackgroundImageView)
-        
-        XCTAssert(imageView.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailTitleLabel.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailRatingLabel.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailContainerView.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailFavoriteButton.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailDescLabel.waitForExistence(timeout: 2))
+        XCTAssert(movieDetailBackgroundImageView.waitForExistence(timeout: 2))
     }
 }
 

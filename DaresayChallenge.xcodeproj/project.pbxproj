@@ -71,6 +71,7 @@
 		A8FEF5B928EC2FD400574BC7 /* MovieDetailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5B828EC2FD400574BC7 /* MovieDetailService.swift */; };
 		A8FEF5BC28EDA10E00574BC7 /* FavoriteMoviesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5BB28EDA10E00574BC7 /* FavoriteMoviesService.swift */; };
 		A8FEF5BE28EDA71200574BC7 /* CodingUserInfoKey+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5BD28EDA71200574BC7 /* CodingUserInfoKey+Extensions.swift */; };
+		A8FEF5C028EDAFFC00574BC7 /* MovieMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FEF5BF28EDAFFC00574BC7 /* MovieMock.swift */; };
 		AF1E02F1504DA0A17DA4A6B3 /* Pods_DaresayChallengeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6059B7E103E4803ECDD9EAB9 /* Pods_DaresayChallengeTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -163,6 +164,7 @@
 		A8FEF5B828EC2FD400574BC7 /* MovieDetailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailService.swift; sourceTree = "<group>"; };
 		A8FEF5BB28EDA10E00574BC7 /* FavoriteMoviesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteMoviesService.swift; sourceTree = "<group>"; };
 		A8FEF5BD28EDA71200574BC7 /* CodingUserInfoKey+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingUserInfoKey+Extensions.swift"; sourceTree = "<group>"; };
+		A8FEF5BF28EDAFFC00574BC7 /* MovieMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieMock.swift; sourceTree = "<group>"; };
 		CAEA06B6172526332919FE1B /* Pods-DaresayChallenge-DaresayChallengeUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DaresayChallenge-DaresayChallengeUITests.release.xcconfig"; path = "Target Support Files/Pods-DaresayChallenge-DaresayChallengeUITests/Pods-DaresayChallenge-DaresayChallengeUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E2A9665CA7689DE9AFAAA91F /* Pods-DaresayChallengeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DaresayChallengeTests.release.xcconfig"; path = "Target Support Files/Pods-DaresayChallengeTests/Pods-DaresayChallengeTests.release.xcconfig"; sourceTree = "<group>"; };
 		E787AF38D53058E46BEE1F58 /* Pods_DaresayChallenge_DaresayChallengeUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DaresayChallenge_DaresayChallengeUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -527,6 +529,7 @@
 			children = (
 				A88F8DD3286C8875001CC78B /* URLProtocolMock.swift */,
 				A88F8DD5286C8885001CC78B /* NetworkingMock.swift */,
+				A8FEF5BF28EDAFFC00574BC7 /* MovieMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -919,6 +922,7 @@
 				A88F8DDB286C8984001CC78B /* MoviesCoordinatorTest.swift in Sources */,
 				A88F8DDF286C8BAF001CC78B /* MoviesServiceTest.swift in Sources */,
 				A863D534286D7BEE007B67BF /* MoviesViewModelTest.swift in Sources */,
+				A8FEF5C028EDAFFC00574BC7 /* MovieMock.swift in Sources */,
 				A88F8DD4286C8875001CC78B /* URLProtocolMock.swift in Sources */,
 				A88F8DD6286C8885001CC78B /* NetworkingMock.swift in Sources */,
 			);

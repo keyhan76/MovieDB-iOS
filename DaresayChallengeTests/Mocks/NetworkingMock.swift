@@ -20,7 +20,7 @@ class NetworkingMock: ServerProtocol {
         self.validResponseCodes = validResponseCodes
     }
     
-    func perform<T: Codable>(request: HTTPRequest) async throws -> ServerData<T> {
+    func perform<T: Codable>(request: HTTPRequest, managedObjectContext: ManagedObjectContext?) async throws -> ServerData<T> {
         guard let url = request.requestURL.url else {
             throw APIError.invalidURL
         }
@@ -43,6 +43,9 @@ class NetworkingMock: ServerProtocol {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
             decoder.keyDecodingStrategy = .convertFromSnakeCase
+            if let managedObjectContext = managedObjectContext {
+                decoder.userInfo[.managedObjectContext] = managedObjectContext
+            }
             let responseObject = try decoder.decode(T.self, from: data)
             
             return ServerData(httpStatus: 200, model: responseObject, httpHeaders: [:])
